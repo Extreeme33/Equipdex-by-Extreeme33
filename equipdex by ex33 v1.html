@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>Equipdex by Extreeme33</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #121212; color: #e0e0e0; margin: 0; padding: 0; }
+        .navbar { background-color: #1a1f3c; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2a2f54; }
+        .navbar-title { font-size: 20px; font-weight: bold; color: #ffffff; }
+        .search-box { position: relative; width: 250px; }
+        .search-box input { width: 100%; padding: 8px 12px; font-size: 14px; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 4px; background: rgba(255, 255, 255, 0.07); color: white; outline: none; box-sizing: border-box; transition: background 0.2s, border-color 0.2s; }
+        .search-box input::placeholder { color: rgba(255, 255, 255, 0.4); }
+        .search-box input:focus { background: rgba(255, 255, 255, 0.12); border-color: #5c6bc0; }
+        .category-bar { background-color: #232a52; display: flex; justify-content: center; gap: 40px; padding: 12px 20px; border-bottom: 1px solid #2d3666; }
+        .tab-btn { background: none; border: none; color: #a4b0be; font-size: 13px; font-weight: bold; letter-spacing: 1px; cursor: pointer; padding: 6px 12px; text-transform: uppercase; transition: color 0.2s, border-bottom-color 0.2s; border-bottom: 2px solid transparent; }
+        .tab-btn:hover { color: #ffffff; }
+        .tab-btn.active { color: #ffffff; border-bottom: 2px solid #ffb74d; }
+        
+        .grid-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; padding: 15px; max-width: 1400px; margin: 0 auto; }
+        @media (max-width: 1200px) { .grid-container { grid-template-columns: repeat(4, 1fr); } }
+        @media (max-width: 950px) { .grid-container { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 700px) { .grid-container { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 450px) { .grid-container { grid-template-columns: 1fr; } }
+        
+        .item-card { background: #1e1e1e; border: 1px solid #2d2d2d; border-radius: 6px; display: flex; align-items: center; padding: 8px; cursor: pointer; transition: transform 0.15s, background-color 0.15s, border-color 0.15s; }
+        .item-card:hover { transform: translateY(-2px); background-color: #252525; border-color: #444444; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+        .image-box { width: 60px; height: 60px; background-color: #0b2e6b; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0; overflow: hidden; }
+        .image-box img { width: 100%; height: 100%; object-fit: contain; }
+        .item-info { display: flex; flex-direction: column; min-width: 0; }
+        .item-name { font-size: 14px; font-weight: bold; margin-bottom: 4px; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .stars { color: #ffca28; font-size: 12px; letter-spacing: 1px; }
+        
+        .pagination-container { display: flex; flex-direction: column; align-items: center; gap: 10px; margin: 30px auto; font-size: 14px; color: #aaaaaa; }
+        .pagination-buttons { display: flex; align-items: center; gap: 6px; }
+        .page-btn { background: #1e1e1e; color: #e0e0e0; border: 1px solid #333333; padding: 5px 10px; border-radius: 4px; cursor: pointer; min-width: 32px; text-align: center; font-weight: bold; user-select: none; }
+        .page-btn:hover:not(:disabled) { border-color: #5c6bc0; background-color: #252525; }
+        .page-btn.active { background-color: #1a1f3c; border-color: #5c6bc0; color: #ffb74d; }
+        .page-btn:disabled { color: #555555; cursor: not-allowed; border-color: #252525; }
+        .page-dots { padding: 0 4px; color: #666666; font-weight: bold; }
+        .pagination-info { display: flex; align-items: center; gap: 6px; color: #cccccc; }
+        .page-size-input { width: 60px; padding: 4px; background: #1e1e1e; color: #fff; border: 1px solid #333333; border-radius: 4px; text-align: center; font-size: 14px; outline: none; }
+        .page-size-input:focus { border-color: #5c6bc0; }
+        
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.65); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        .modal-content { background: rgba(26, 26, 26, 0.7) !important; backdrop-filter: blur(16px) saturate(120%) !important; -webkit-backdrop-filter: blur(16px) saturate(120%) !important; color: #e0e0e0; width: 90%; max-width: 580px; padding: 25px; border: 1px solid rgba(255, 255, 255, 0.12) !important; border-radius: 12px; box-shadow: 0 20px 50px rgba(0,0,0,0.65); max-height: 85vh; overflow-y: auto; position: relative; }
+        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: #888; font-weight: bold; }
+        .close-btn:hover { color: #ffffff; }
+        
+        /* NEW: Subcategory Icon Title Layout & Interactive Hover Tooltips */
+        .popup-title-container { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .subcategory-icon-wrapper { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; vertical-align: middle; cursor: help; }
+        .subcategory-icon-img { width: 100%; height: 100%; object-fit: contain; }
+        
+        .subcategory-icon-wrapper::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 130%;
+            left: 50%;
+            transform: translateX(-50%) translateY(4px);
+            background: rgba(20, 20, 35, 0.92);
+            color: #ffb74d;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 4px;
+            white-space: nowrap;
+            border: 1px solid rgba(255, 183, 77, 0.3);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s ease, transform 0.15s ease;
+            z-index: 1010;
+        }
+        .subcategory-icon-wrapper:hover::after { opacity: 1; transform: translateX(-50%) translateY(0); }
+		
+        /* Aligns title text container properties into a top-to-bottom stack column */
+        .popup-title-area { 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; /* Centers items vertically inside its box */
+            align-items: flex-start; 
+            gap: 6px; 
+            align-self: center; /* FIX: Forces the layout box itself to align perfectly centered with the image box height */
+        }
+        /* FIX: Resets browser defaults to push your weapon title completely to the top edge */
+        .popup-title-area h2 {
+            margin: 0 !important;
+            padding: 0 !important;
+            line-height: 1.2; 
+            font-size: 20px;
+            color: #ffffff !important; /* Forces title to render as pure white */
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .popup-title-container { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            flex-wrap: wrap; 
+        }
+		
+        .popup-header { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 10px; }
+        .popup-img { width: 75px; height: 75px; background: #0b2e6b; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid #224488; }
+        .popup-img img { width: 100%; height: 100%; object-fit: contain; }
+        .popup-stars { 
+            color: #ffca28; 
+            font-size: 18px; 
+            margin-top: 0 !important; 
+            line-height: 1;
+        }
+        .disassemble-text { color: #aaaaaa; font-size: 14px; margin: 5px 0; font-weight: bold; }
+        .ineffective-text { color: #ffa726; font-size: 14px; font-weight: bold; margin-bottom: 15px; }
+        .stats-table { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 30px; font-size: 14px; color: #dddddd; margin-bottom: 25px; }
+        .stat-item { display: flex; justify-content: space-between; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 4px; }
+        .stat-label { color: #aaaaaa; font-weight: 500; }
+        .stat-value { font-weight: bold; color: #ffffff; }
+        .stat-type { grid-column: span 2; display: flex; justify-content: flex-start; gap: 30px; }
+        .skill-section { margin-bottom: 18px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px; }
+        .skill-title { color: #ffb74d; font-weight: bold; font-size: 15px; margin-bottom: 6px; }
+        .skill-desc { color: #ffffff !important; font-size: 14px; line-height: 1.4; font-weight: 500; }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="navbar-title">Equipdex by Extreeme33</div>
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Search by name, ID, or type..." oninput="handleSearch()">
+        </div>
+    </div>
+
+    <div class="category-bar">
+        <button class="tab-btn active" onclick="switchCategory('ALL', this)">All</button>
+        <button class="tab-btn" onclick="switchCategory('WEAPONS', this)">Weapons</button>
+        <button class="tab-btn" onclick="switchCategory('CLOTHES', this)">Clothes</button>
+        <button class="tab-btn" onclick="switchCategory('BADGE', this)">Badge</button>
+        <button class="tab-btn" onclick="switchCategory('PET', this)">Pet</button>
+    </div>
+
+    <div class="grid-container" id="displayGrid"></div>
+
+    <div class="pagination-container">
+        <div class="pagination-buttons" id="paginationBtns"></div>
+        <div class="pagination-info">
+            Each page displays 
+            <input type="number" id="pageSizeInput" class="page-size-input" value="40" min="1" oninput="handlePageSizeChange()"> 
+            Article, total <span id="totalPagesText">0</span> pages
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="weaponModal" onclick="closePopup(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <span class="close-btn" onclick="toggleModal(false)">&times;</span>
+            <div id="modalDataBox"></div>
+        </div>
+    </div>
+
+    <script>
+        // Centralized browser storage cache configuration layer
+        const database = {
+    "3": {
+        "id": "3",
+        "name": "xdd cat",
+        "stars": "⭐",
+        "img": "https://placeholder.com",
+        "type": "Shotgun - multi-headed",
+        "subcategory": "Role",
+        "categoryIcon": "",
+        "loadCap": "0",
+        "maxLevel": "50",
+        "maxLoad": "0",
+        "atkSpeed": "0",
+        "dismantle": true,
+        "stacking": false,
+        "skillTitle1": "you",
+        "skillDesc1": "sucks",
+        "skillTitle2": "you",
+        "skillDesc2": "win",
+        "refinedFrom": "",
+        "kizunaImg": "",
+        "skinImg": ""
+    },
+    "4": {
+        "id": "4",
+        "name": "q",
+        "stars": "⭐",
+        "img": "https://placeholder.com",
+        "type": "Pistol—rapid-fire",
+        "loadCap": "0",
+        "maxLevel": "50",
+        "maxLoad": "0",
+        "atkSpeed": "0",
+        "skillTitle1": "",
+        "skillDesc1": "",
+        "skillTitle2": "",
+        "skillDesc2": ""
+    },
+    "4604": {
+        "id": "4604",
+        "name": "Xilu's Small Wish",
+        "stars": "⭐⭐⭐⭐⭐",
+        "img": "https://i.postimg.cc/DzfvPhv6/4604.png",
+        "type": "Spray - activation",
+        "subcategory": "Role",
+        "categoryIcon": "data:image/png;base64,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",
+        "loadCap": "1",
+        "maxLevel": "50",
+        "maxLoad": "11",
+        "atkSpeed": "22",
+        "dismantle": true,
+        "stacking": false,
+        "skillTitle1": "Leave It to Xilu!",
+        "skillDesc1": "Upon use, increases <span style=\"color: rgb(229, 115, 115);\">Movement Speed</span> by <b style=\"\"><i style=\"color: rgb(100, 181, 246);\">40(50)%</i></b> for <span style=\"color: rgb(255, 183, 77);\">10 seconds</span>, and applies the 'Xilu-Xilu' debuff to all enemies for <span style=\"color: rgb(255, 183, 77);\">4 seconds</span> if conditions are met.",
+        "skillTitle2": "Xilu's feelings for you...",
+        "skillDesc2": "<div>When equipping <span style=\"color: rgb(129, 199, 132);\">2 or more Spray-type weapons</span>, using this weapon for the first time grants one of the following bonuses:&nbsp;</div><div>\n<br>\n</div><div>1. Increases <span style=\"color: rgb(229, 115, 115);\">Crit Rate</span> by <span style=\"color: rgb(100, 181, 246); font-weight: bold; font-style: italic;\">200(250)%</span> and <span style=\"color: rgb(229, 115, 115);\">Crit Damage</span> by <span style=\"color: rgb(100, 181, 246); font-weight: bold; font-style: italic;\">250(300)%</span>;&nbsp;</div><div>2. Increases <span style=\"color: rgb(229, 115, 115);\">Weapon ATK</span> by <span style=\"color: rgb(100, 181, 246); font-weight: bold; font-style: italic;\">450(600)%</span>;&nbsp;</div><div>3. Increases <span style=\"color: rgb(229, 115, 115);\">Attack Speed</span> by <span style=\"font-weight: bold; font-style: italic; color: rgb(100, 181, 246);\">270(350)%</span>;&nbsp;</div><div>4. Increases <span style=\"color: rgb(229, 115, 115);\">All Damage</span> by <span style=\"color: rgb(100, 181, 246); font-weight: bold; font-style: italic;\">800(1000)%</span> and increases <span style=\"color: rgb(229, 115, 115);\">Max Ammo</span> by <span style=\"color: rgb(100, 181, 246);\">20%</span>.</div><div><br>\n</div><div><span style=\"font-style: italic;\">\"After Xilu done choosing, Xilu will defeats all normal enemies and normal elites on screen, and restores <span style=\"color: rgb(100, 181, 246);\">100%</span> HP and Shield. Xilu will help you choose the most useful bonus as possible\"</span></div>",
+        "refinedFrom": "4605",
+        "kizunaImg": "https://i.postimg.cc/c4PzMGWw/4605-kizuna.png",
+        "skinImg": ""
+    },
+    "4605": {
+        "id": "4605",
+        "name": "Xilu's Small Wish",
+        "stars": "⭐⭐⭐⭐⭐⭐",
+        "img": "https://i.postimg.cc/tgRqNbqc/4605.png",
+        "type": "Spray - activation",
+        "subcategory": "Role",
+        "categoryIcon": "data:image/png;base64,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",
+        "loadCap": "1",
+        "maxLevel": "99",
+        "maxLoad": "11",
+        "atkSpeed": "22",
+        "dismantle": false,
+        "stacking": false,
+        "skillTitle1": "Leave It to Xilu!",
+        "skillDesc1": "Upon use, increases <span style=\"color: rgb(229, 115, 115);\">Movement Speed</span> by <b style=\"\"><i style=\"color: rgb(100, 181, 246);\">40(50)%</i></b> for <span style=\"color: rgb(255, 183, 77);\">10 seconds</span>, and applies the 'Xilu-Xilu' debuff to all enemies for <span style=\"color: rgb(255, 183, 77);\">4 seconds</span> if conditions are met.",
+        "skillTitle2": "Xilu's feelings for you...",
+        "skillDesc2": "<div>When equipping <span style=\"color: rgb(129, 199, 132);\">2 or more Spray-type weapons</span>, using this weapon for the first time grants one of the following bonuses:&nbsp;</div><div><br>\n</div><div>1. Increases <span style=\"color: rgb(229, 115, 115);\">Crit Rate</span> by <span style=\"color: rgb(100, 181, 246); font-weight: bold; font-style: italic;\">200(250)%</span> and <span style=\"color: rgb(229, 115, 115);\">Crit Damage</span> by <span style=\"color: rgb(100, 181, 246); font-weight: bold; font-style: italic;\">250(300)%</span>;&nbsp;</div><div>2. Increases <span style=\"color: rgb(229, 115, 115);\">Weapon ATK</span> by <span style=\"color: rgb(100, 181, 246); font-weight: bold; font-style: italic;\">450(600)%</span>;&nbsp;</div><div>3. Increases <span style=\"color: rgb(229, 115, 115);\">Attack Speed</span> by <span style=\"font-weight: bold; font-style: italic; color: rgb(100, 181, 246);\">270(350)%</span>;&nbsp;</div><div>4. Increases <span style=\"color: rgb(229, 115, 115);\">All Damage</span> by <span style=\"color: rgb(100, 181, 246); font-weight: bold; font-style: italic;\">800(1000)%</span> and increases <span style=\"color: rgb(229, 115, 115);\">Max Ammo</span> by <span style=\"color: rgb(100, 181, 246);\">20%</span>.</div><div>\n<br>\n</div><div><span style=\"font-style: italic;\">\"After Xilu done choosing, Xilu will defeats all normal enemies and normal elites on screen, and restores <span style=\"color: rgb(100, 181, 246);\">100%</span> HP and Shield. Xilu will help you choose the most useful bonus as possible\"</span></div>",
+        "refinedFrom": "4604",
+        "kizunaImg": "https://i.postimg.cc/c4PzMGWw/4605-kizuna.png",
+        "skinImg": ""
+    },
+    "w": {
+        "id": "w",
+        "name": "handgun",
+        "stars": "⭐",
+        "img": "https://placeholder.com",
+        "type": "Pistol—rapid-fire",
+        "subcategory": "Role",
+        "categoryIcon": "",
+        "loadCap": "1",
+        "maxLevel": "99",
+        "maxLoad": "11",
+        "atkSpeed": "22",
+        "dismantle": true,
+        "stacking": false,
+        "skillTitle1": "abc",
+        "skillDesc1": "you cool",
+        "skillTitle2": "cde",
+        "skillDesc2": "you lose",
+        "refinedFrom": "",
+        "kizunaImg": "",
+        "skinImg": ""
+    }
+};
+        const grid = document.getElementById('displayGrid');
+        
+        let currentPage = 1;
+        let itemsPerPage = 40;
+        let filteredItems = [];
+        let currentCategory = 'ALL';
+
+        // Custom Dictionary Map for Fallback Subcategory Icons
+        const subcategoryIcons = {
+            "default": "data:image/svg+xml;utf8,<svg xmlns='http://w3.org' viewBox='0 0 24 24' fill='%23ffb74d'><path d='M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49.86c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-.86c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-.86c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49.86c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z'/></svg>"
+        };
+
+        function updateFilteredItems() {
+            const searchText = document.getElementById('searchInput').value;
+            const query = searchText ? searchText.toLowerCase().trim() : '';
+            const keys = Object.keys(database).sort();
+            filteredItems = [];
+
+            keys.forEach(id => {
+                const item = database[id];
+                const name = (item.name || '').toLowerCase();
+                const type = (item.type || '').toLowerCase();
+                const itemId = (item.id || '').toLowerCase();
+
+                const matchesSearch = !query || name.includes(query) || type.includes(query) || itemId.includes(query);
+                
+                let matchesCategory = false;
+                if (currentCategory === 'ALL') {
+                    matchesCategory = true;
+                } else if (currentCategory === 'WEAPONS') {
+                    matchesCategory = !type.includes('clothing') && !type.includes('badge') && !type.includes('human figure');
+                } else if (currentCategory === 'CLOTHES') {
+                    matchesCategory = type.includes('clothing');
+                } else if (currentCategory === 'BADGE') {
+                    matchesCategory = type.includes('badge');
+                } else if (currentCategory === 'PET') {
+                    matchesCategory = type.includes('human figure');
+                }
+
+                if (matchesSearch && matchesCategory) {
+                    filteredItems.push(item);
+                }
+            });
+        }
+
+        function switchCategory(category, buttonElement) {
+            currentCategory = category;
+            currentPage = 1;
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            buttonElement.classList.add('active');
+            updateFilteredItems();
+            setupDisplay();
+        }
+
+        function renderPage() {
+            grid.innerHTML = '';
+            
+            if (filteredItems.length === 0) {
+                if (Object.keys(database).length === 0) {
+                    grid.innerHTML = `<p style="grid-column: span 5; text-align:center; color:#888; padding-top:40px;">No items found. Open editor.html to populate data!</p>`;
+                } else {
+                    grid.innerHTML = `<p style="grid-column: span 5; text-align:center; color:#888; padding-top:40px;">No items match your criteria inside this category.</p>`;
+                }
+                return;
+            }
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, filteredItems.length);
+            
+            for (let i = startIndex; i < endIndex; i++) {
+                const item = filteredItems[i];
+                grid.innerHTML += `
+                    <div class="item-card" onclick="openPopup('${item.id}')">
+                        <div class="image-box">
+                            <img src="${item.img}" alt="${item.name}">
+                        </div>
+                        <div class="item-info">
+                            <div class="item-name">${item.name}</div>
+                            <div class="stars">${item.stars}</div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function renderPaginationControls() {
+            const btnContainer = document.getElementById('paginationBtns');
+            const totalPagesText = document.getElementById('totalPagesText');
+            
+            if (!btnContainer) return;
+            btnContainer.innerHTML = '';
+            const totalPages = Math.ceil(filteredItems.length / itemsPerPage) || 1;
+            if (totalPagesText) totalPagesText.textContent = totalPages;
+
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'page-btn';
+            prevBtn.textContent = '<';
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.onclick = () => { currentPage--; setupDisplay(); };
+            btnContainer.appendChild(prevBtn);
+
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, startPage + 4);
+            if (endPage - startPage < 4) {
+                startPage = Math.max(1, endPage - 4);
+            }
+
+            if (startPage > 1) {
+                appendPageButton(1, btnContainer);
+                if (startPage > 2) {
+                    const dots = document.createElement('span');
+                    dots.className = 'page-dots';
+                    dots.textContent = '...';
+                    btnContainer.appendChild(dots);
+                }
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                appendPageButton(i, btnContainer);
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const dots = document.createElement('span');
+                    dots.className = 'page-dots';
+                    dots.textContent = '...';
+                    btnContainer.appendChild(dots);
+                }
+                appendPageButton(totalPages, btnContainer);
+            }
+
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'page-btn';
+            nextBtn.textContent = '>';
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.onclick = () => { currentPage++; setupDisplay(); };
+            btnContainer.appendChild(nextBtn);
+        }
+
+        function appendPageButton(pageNumber, container) {
+            const btn = document.createElement('button');
+            btn.className = 'page-btn' + (pageNumber === currentPage ? ' active' : '');
+            btn.textContent = pageNumber;
+            btn.onclick = () => { currentPage = pageNumber; setupDisplay(); };
+            container.appendChild(btn);
+        }
+
+        function setupDisplay() {
+            renderPage();
+            renderPaginationControls();
+        }
+
+        function handleSearch() {
+            currentPage = 1; 
+            updateFilteredItems();
+            setupDisplay();
+        }
+
+        function handlePageSizeChange() {
+            const input = document.getElementById('pageSizeInput');
+            let value = parseInt(input.value);
+            if (isNaN(value) || value < 1) value = 1;
+            itemsPerPage = value;
+            currentPage = 1; 
+            setupDisplay();
+        }
+
+        function openPopup(id) {
+            const item = database[id];
+            if (!item) return;
+
+            const box = document.getElementById('modalDataBox');
+            if (!box) return;
+            
+            const dismantleText = item.dismantle !== false ? '* This item can be dismantled *' : '* This item cannot be dismantled *';
+            const stackingText = item.stacking === true ? 'Multiple item can be used and the value is stackable' : 'Multiple item cannot be used and the value is ineffective';
+            
+            const subCat = item.subcategory || "Role";
+            const iconSrc = item.categoryIcon || subcategoryIcons["default"];
+
+            let htmlContent = '<div class="popup-header">' +
+                '    <div class="popup-img"><img src="' + item.img + '"></div>' +
+                '    <div class="popup-title-area">' +
+                '        <div class="popup-title-container">' +
+                '            <h2 style="color:#fff;">No.' + item.id + ' ' + item.name + '</h2>' +
+                '            <div class="subcategory-icon-wrapper" data-tooltip="' + subCat + '">' +
+                '                <img class="subcategory-icon-img" src="' + iconSrc + '">' +
+                '            </div>' +
+                '        </div>' +
+                '        <div class="popup-stars" style="color:#ffca28;">' + item.stars + '</div>' +
+                '    </div>' +
+                '</div>' +
+                '<div class="disassemble-text" style="color:#aaaaaa; font-weight:bold;">' + dismantleText + '</div>' +
+                '<div class="ineffective-text" style="color:#ffa726; font-weight:bold; margin-bottom:15px;">' + stackingText + '</div>' +
+                '<div class="stats-table">' +
+                '    <div class="stat-item"><span class="stat-label">Load capacity:</span> <span class="stat-value">' + item.loadCap + '</span></div>' +
+                '    <div class="stat-item"><span class="stat-label">Maximum level:</span> <span class="stat-value">' + item.maxLevel + '</span></div>' +
+                '    <div class="stat-item"><span class="stat-label">Max Load Load:</span> <span class="stat-value">' + item.maxLoad + '</span></div>' +
+                '    <div class="stat-item"><span class="stat-label">Max level attack speed:</span> <span class="stat-value">' + item.atkSpeed + '</span></div>' +
+                '    <div class="stat-type" style="grid-column: span 2;"><span class="stat-label">Type:</span> <span class="stat-value" style="color:#ffb74d;">' + item.type + '</span></div>' +
+                '</div>';
+
+            if (item.skillTitle1) {
+                htmlContent += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;">' +
+                    '    <div class="skill-title" style="color:#ffb74d; font-weight:bold; font-size:15px; margin-bottom:6px;">' + item.skillTitle1 + '</div>' +
+                    '    <div class="skill-desc" style="color:#fff; font-size:14px; line-height:1.4;">' + (item.skillDesc1 || '') + '</div>' +
+                    '</div>';
+            }
+
+            if (item.skillTitle2) {
+                htmlContent += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;">' +
+                    '    <div class="skill-title" style="color:#ffb74d; font-weight:bold; font-size:15px; margin-bottom:6px;">' + item.skillTitle2 + '</div>' +
+                    '    <div class="skill-desc" style="color:#fff; font-size:14px; line-height:1.4;">' + (item.skillDesc2 || '') + '</div>' +
+                    '</div>';
+            }
+
+            // SMART EVOLUTION LABELLER DIAGNOSTIC
+            if (item.refinedFrom && database[item.refinedFrom]) {
+                const prevItem = database[item.refinedFrom];
+                const currentIdNum = parseInt(item.id, 10) || 0;
+                const targetIdNum = parseInt(prevItem.id, 10) || 0;
+                const evolutionLabel = targetIdNum > currentIdNum ? "Refined into :" : "Refined from :";
+                
+                htmlContent += '<div class="evolution-section" style="margin-top: 18px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px;">' +
+                    '    <div class="evolution-label" style="color: #ffb74d; font-size: 14px; font-weight: bold; margin-bottom: 8px;">' + evolutionLabel + '</div>' +
+                    '    <div class="evolution-card" onclick="openPopup(\'' + prevItem.id + '\')" style="display: inline-flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.04); padding: 8px 14px; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background=\'rgba(255,255,255,0.1)\'" onmouseout="this.style.background=\'rgba(255,255,255,0.04)\'">' +
+                    '        <div style="width: 36px; height: 36px; background: #0b2e6b; border-radius: 4px; overflow: hidden; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><img src="' + prevItem.img + '" style="width: 100%; height: 100%; object-fit: contain;"></div>' +
+                    '        <div style="display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 2px;">' +
+                    '            <div style="color: #ffffff; font-size: 13px; font-weight: bold; line-height: 1.2;">No.' + prevItem.id + ' ' + prevItem.name + '</div>' +
+                    '            <div style="color: #ffca28; font-size: 11px; letter-spacing: 0.5px; line-height: 1;">' + (prevItem.stars || '⭐') + '</div>' +
+                    '        </div>' +
+                    '    </div>' +
+                    '</div>';
+            }
+
+            // Kizuna & Skin Layout Action Buttons Module Injection
+            let mediaButtonsHtml = '';
+            if (item.kizunaImg || item.skinImg) {
+                mediaButtonsHtml += '<div style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px; display: flex; gap: 10px;">';
+                if (item.kizunaImg) {
+                    mediaButtonsHtml += '    <button onclick="viewAnimeArtwork(\'' + item.kizunaImg + '\')" style="flex: 1; background: #ab47bc; color: #ffffff; border: none; padding: 10px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; transition: background 0.2s;" onmouseover="this.style.background=\'#ba68c8\'" onmouseout="this.style.background=\'#ab47bc\'">View Kizuna</button>';
+                }
+                if (item.skinImg) {
+                    mediaButtonsHtml += '    <button onclick="viewAnimeArtwork(\'' + item.skinImg + '\')" style="flex: 1; background: #ec407a; color: #ffffff; border: none; padding: 10px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; transition: background 0.2s;" onmouseover="this.style.background=\'#f06292\'" onmouseout="this.style.background=\'#ec407a\'">View Skin</button>';
+                }
+                mediaButtonsHtml += '</div>';
+                htmlContent += mediaButtonsHtml;
+            }
+
+            box.innerHTML = htmlContent;
+            toggleModal(true);
+        }
+
+        function toggleModal(show) {
+            const modal = document.getElementById('weaponModal');
+            if (modal) modal.style.display = show ? 'flex' : 'none';
+        }
+
+        function closePopup(event) {
+            toggleModal(false);
+        }
+
+        updateFilteredItems();
+        setupDisplay();
+    </script>
+
+    <!-- Fullscreen Anime Artwork Media Lightbox Viewer Overlay Container -->
+    <div id="artworkLightbox" onclick="closeAnimeArtwork()" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 10, 15, 0.95); z-index: 2000; align-items: center; justify-content: center; cursor: zoom-out;">
+        <span style="position: absolute; top: 20px; right: 25px; color: #fff; font-size: 35px; font-weight: bold; cursor: pointer;">&times;</span>
+        <img id="lightboxTargetImage" src="" style="max-width: 90%; max-height: 90%; object-fit: contain; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.1);">
+    </div>
+
+    <script>
+        function viewAnimeArtwork(imageSrc) {
+            const lightbox = document.getElementById('artworkLightbox');
+            const targetImg = document.getElementById('lightboxTargetImage');
+            if (lightbox && targetImg) {
+                targetImg.src = imageSrc;
+                lightbox.style.display = 'flex';
+            }
+        }
+
+        function closeAnimeArtwork() {
+            const lightbox = document.getElementById('artworkLightbox');
+            if (lightbox) lightbox.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
