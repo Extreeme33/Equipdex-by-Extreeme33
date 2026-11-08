@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>GGZ Tools by Extreeme33</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #121212; color: #e0e0e0; margin: 0; padding: 0; }
+        .navbar { background-color: #0c0e17; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #16192b; }
+        .navbar-title { font-size: 20px; font-weight: bold; color: #ffffff; }
+        .search-box { position: relative; width: 250px; }
+        .search-box input { width: 100%; padding: 8px 12px; font-size: 14px; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 4px; background: rgba(255, 255, 255, 0.07); color: white; outline: none; box-sizing: border-box; transition: background 0.2s, border-color 0.2s; }
+        .search-box input::placeholder { color: rgba(255, 255, 255, 0.4); }
+        .search-box input:focus { background: rgba(255, 255, 255, 0.12); border-color: #5c6bc0; }
+        .category-bar { background-color: #1c2242; display: flex; justify-content: center; gap: 40px; padding: 12px 20px; border-bottom: 1px solid #262c54; }
+        .tab-btn { background: none; border: none; color: #a4b0be; font-size: 13px; font-weight: bold; letter-spacing: 1px; cursor: pointer; padding: 6px 12px; text-transform: uppercase; transition: color 0.2s, border-bottom-color 0.2s; border-bottom: 2px solid transparent; }
+        .tab-btn:hover { color: #ffffff; }
+        .tab-btn.active { color: #ffffff; border-bottom: 2px solid #ffb74d; }
+        .grid-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; padding: 15px; max-width: 1400px; margin: 0 auto; }
+        @media (max-width: 1200px) { .grid-container { grid-template-columns: repeat(4, 1fr); } }
+        @media (max-width: 950px) { .grid-container { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 700px) { .grid-container { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 450px) { .grid-container { grid-template-columns: 1fr; } }
+
+        .item-card { background: #1e1e1e; border: 1px solid #2d2d2d; border-radius: 6px; display: flex; align-items: center; padding: 8px; cursor: pointer; transition: transform 0.15s, background-color 0.15s, border-color 0.15s; }
+        .item-card:hover { transform: translateY(-2px); background-color: #252525; border-color: #444444; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+        .image-box { width: 60px; height: 60px; background-color: #0b2e6b; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0; overflow: hidden; }
+        .image-box img { width: 100%; height: 100%; object-fit: contain; }
+        .item-info { display: flex; flex-direction: column; min-width: 0; }
+        .item-name { font-size: 14px; font-weight: bold; margin-bottom: 4px; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .stars { color: #ffca28; font-size: 12px; letter-spacing: 1px; }
+        .pagination-container { display: flex; flex-direction: column; align-items: center; gap: 10px; margin: 30px auto; font-size: 14px; color: #aaaaaa; }
+        .pagination-buttons { display: flex; align-items: center; gap: 6px; }
+        .page-btn { background: #1e1e1e; color: #e0e0e0; border: 1px solid #333333; padding: 5px 10px; border-radius: 4px; cursor: pointer; min-width: 32px; text-align: center; font-weight: bold; user-select: none; }
+        .page-btn:hover:not(:disabled) { border-color: #5c6bc0; background-color: #252525; }
+        .page-btn.active { background-color: #1a1f3c; border-color: #5c6bc0; color: #ffb74d; }
+        .page-btn:disabled { color: #555555; cursor: not-allowed; border-color: #252525; }
+        .page-dots { padding: 0 4px; color: #666666; font-weight: bold; }
+        .pagination-info { display: flex; align-items: center; gap: 6px; color: #cccccc; }
+        .page-size-input { width: 60px; padding: 4px; background: #1e1e1e; color: #fff; border: 1px solid #333333; border-radius: 4px; text-align: center; font-size: 14px; outline: none; }
+        .page-size-input:focus { border-color: #5c6bc0; }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.65); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        .modal-content {
+            background: rgba(26, 26, 26, 0.7);
+            backdrop-filter: blur(16px) saturate(120%) !important;
+            -webkit-backdrop-filter: blur(16px) saturate(120%) !important;
+            color: #e0e0e0;
+            width: 90%;
+            max-width: 580px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            border-radius: 12px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.65);
+            max-height: 85vh;
+            overflow-y: auto !important;
+            position: relative;
+            cursor: default;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            scrollbar-color: #2a2f54 rgba(20, 20, 25, 0.4);
+            scrollbar-width: thin;
+        }
+        .modal-content::-webkit-scrollbar { width: 8px !important; display: block !important; }
+        .modal-content::-webkit-scrollbar-track { background: rgba(20, 20, 25, 0.4) !important; border-radius: 0 12px 12px 0 !important; }
+        .modal-content::-webkit-scrollbar-thumb { background: #2a2f54 !important; border-radius: 4px !important; border: 1px solid rgba(255, 255, 255, 0.05) !important; }
+        .modal-content::-webkit-scrollbar-thumb:hover { background: #ffb74d !important; }
+
+        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: #888; font-weight: bold; }
+        .close-btn:hover { color: #ffffff; }
+
+        .popup-title-container { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .subcategory-icon-wrapper { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; vertical-align: middle; cursor: help; }
+        .subcategory-icon-img { width: 100%; height: 100%; object-fit: contain; }
+
+        .subcategory-icon-wrapper::after {
+            content: attr(data-tooltip); position: absolute; bottom: 130%; left: 50%; transform: translateX(-50%) translateY(4px); background: rgba(20, 20, 35, 0.92); color: #ffb74d; font-size: 11px; font-weight: bold; padding: 5px 10px; border-radius: 4px; white-space: nowrap; border: 1px solid rgba(255, 183, 77, 0.3); box-shadow: 0 4px 10px rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: opacity 0.15s ease, transform 0.15s ease; z-index: 1010;
+        }
+        .subcategory-icon-wrapper:hover::after { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .popup-title-area { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 6px; align-self: center; }
+        .popup-title-area h2 { margin: 0 !important; padding: 0 !important; line-height: 1.2; font-size: 20px; color: #ffffff !important; display: flex; align-items: center; gap: 6px; }
+
+        .popup-header { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 10px; }
+        .popup-img { width: 75px; height: 75px; background: #0b2e6b; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid #224488; }
+        .popup-img img { width: 100%; height: 100%; object-fit: contain; }
+        .popup-stars { color: #ffca28; font-size: 16px; margin-top: 0 !important; line-height: 1; }
+        .disassemble-text { color: #aaaaaa; font-size: 14px; margin: 5px 0; font-weight: bold; }
+        .ineffective-text { color: #ffa726; font-size: 14px; font-weight: bold; margin-bottom: 15px; }
+        .stats-table { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 30px; font-size: 14px; color: #dddddd; margin-bottom: 25px; }
+        .stat-item { display: flex; justify-content: space-between; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 4px; }
+        .stat-label { color: #aaaaaa; font-weight: 500; }
+        .stat-value { font-weight: bold; color: #ffffff; }
+        .stat-type { grid-column: span 2; display: flex; justify-content: flex-start; gap: 30px; }
+        .skill-section { margin-bottom: 18px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px; }
+        .skill-title { color: #ffb74d; font-weight: bold; font-size: 15px; margin-bottom: 6px; }
+        .skill-desc { color: #ffffff !important; font-size: 14px; line-height: 1.4; font-weight: 500; }
+
+        .skill-title-container { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+        .element-icon-wrapper { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; cursor: help; text-transform: capitalize; }
+        .element-icon-img { width: 100%; height: 100%; object-fit: contain; }
+
+        .element-icon-wrapper::after {
+            content: attr(data-tooltip); position: absolute; bottom: 130%; left: 50%; transform: translateX(-50%) translateY(4px); background: rgba(20, 20, 35, 0.95); color: #ffffff; font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 4px; white-space: nowrap; border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: 0 4px 10px rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: opacity 0.15s ease, transform 0.15s ease; z-index: 1050; text-transform: capitalize;
+        }
+        .element-icon-wrapper:hover::after { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        .item-element-icon-wrapper { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; vertical-align: middle; cursor: help; }
+        .item-element-icon-img { width: 100%; height: 100%; object-fit: contain; }
+        .item-element-icon-wrapper::after {
+            content: attr(data-tooltip); position: absolute; bottom: 130%; left: 50%; transform: translateX(-50%) translateY(4px); background: rgba(20, 20, 35, 0.95); color: #ffffff; font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 4px; white-space: nowrap; border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: 0 4px 10px rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: opacity 0.15s ease, transform 0.15s ease; z-index: 1050; text-transform: capitalize;
+        }
+        .item-element-icon-wrapper:hover::after { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        .color-legend-container { grid-column: span 2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; margin-top: 15px; margin-bottom: -15px; padding-top: 4px; }
+        .color-legend-label { font-size: 11px; color: #888888; font-weight: bold; text-align: center; }
+        .color-squares-row { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; align-items: center; }
+        .color-indicator-square { position: relative; width: 12px; height: 12px; border-radius: 2px; cursor: help; border: 1px solid rgba(255,255,255,0.1); }
+        .color-indicator-square::after {
+            content: attr(data-tooltip); position: absolute; bottom: 135%; left: 50%; transform: translateX(-50%) translateY(4px); background: rgba(20, 20, 35, 0.96); color: #ffffff; font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 4px; white-space: nowrap; border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: 0 4px 10px rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: opacity 0.15s ease, transform 0.15s ease; z-index: 1100;
+        }
+        .color-indicator-square:hover::after { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        .skill-desc, .skill-title, .stat-value, .stat-label, h2, .disassemble-text, .ineffective-text { user-select: text !important; -webkit-user-select: text !important; -moz-user-select: text !important; -ms-user-select: text !important; display: inline-block; width: fit-content; max-width: 100%; }
+
+        .main-tab-bar { background-color: #141729; display: flex; justify-content: center; gap: 50px; padding: 14px 20px; border-bottom: 1px solid #1e233d; }
+        .main-tab-btn { background: none; border: none; color: #8a96a3; font-size: 15px; font-weight: 800; letter-spacing: 1px; cursor: pointer; padding: 8px 16px; text-transform: uppercase; transition: color 0.2s, border-bottom-color 0.2s; border-bottom: 3px solid transparent; }
+        .main-tab-btn:hover { color: #ffffff; }
+        .main-tab-btn.active { color: #ffb74d; border-bottom: 3px solid #ffb74d; }
+        .main-panel-content { display: none; }
+        .main-panel-content.active { display: block; }
+
+        .meta-loadout-container {
+            background: rgba(26, 26, 36, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 2px solid #2d2d3e;
+            border-radius: 12px;
+            max-width: 850px;
+            margin: 0;
+            padding: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+            box-sizing: border-box;
+            width: 100%;
+        }
+        .meta-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #2d2d3e; padding-bottom: 12px; margin-bottom: 20px; }
+        .meta-team-title { font-size: 18px; font-weight: bold; color: #ffb74d; }
+        .meta-stats-group { display: flex; gap: 25px; font-size: 14px; color: #b0b0b8; }
+        .meta-stat-value { color: #ffffff; font-weight: bold; }
+        .meta-layout-grid { display: grid; grid-template-columns: 100px 1fr; gap: 20px; }
+        .meta-character-column { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .meta-avatar-slot { width: 85px; height: 85px; background: #252532; border: 2px dashed #44445a; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 28px; color: #555566; overflow: hidden; position: relative; }
+        .meta-avatar-slot img { width: 100%; height: 100%; object-fit: cover; }
+        .meta-equipment-box { display: flex; flex-direction: column; gap: 15px; }
+        .meta-equip-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+        
+        /* REMOVED overflow: hidden FROM .meta-item-slot */
+        .meta-item-slot { background: #121216; border: 2px dashed #3a3a4c; border-radius: 8px; aspect-ratio: 1 / 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; transition: border-color 0.2s, background-color 0.2s; }
+        .meta-item-slot.filled { border-style: solid; border-color: #3a3a4c; background: #1a1a22; cursor: pointer; }
+        .meta-item-slot.filled:hover { border-color: #ffb74d; background-color: rgba(255, 183, 77, 0.05); }
+        .meta-item-slot img { width: 80%; height: 80%; object-fit: contain; border-radius: 4px; }
+        .meta-slot-icon { font-size: 32px; opacity: 0.25; margin-bottom: 4px; }
+        .meta-slot-label { font-size: 11px; font-weight: 600; color: #555566; text-transform: uppercase; letter-spacing: 0.5px; }
+        .meta-slot-item-name { font-size: 10px; color: #b0b0b8; text-align: center; padding: 0 4px; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 90%; }
+
+        @media (max-width: 700px) {
+            .meta-layout-grid { grid-template-columns: 1fr; }
+            .meta-character-column { flex-direction: row; }
+        }
+
+        /* ===== VERSION LIST SIDEBAR STYLES ===== */
+        .meta-tab-layout {
+            display: flex;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            align-items: stretch;
+            min-height: calc(100vh - 120px);
+        }
+        .version-list-sidebar {
+            width: 200px;
+            background: #1a1a24;
+            border: 2px solid #2d2d3e;
+            border-radius: 12px;
+            padding: 15px;
+            flex-shrink: 0;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+        }
+        .version-list-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #ffb74d;
+            border-bottom: 2px solid #2d2d3e;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .version-btn {
+            display: block;
+            width: 100%;
+            text-align: left;
+            background: #222227;
+            border: 1px solid #2d2d35;
+            color: #b0b0b8;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .version-btn:hover {
+            background: #2d2d3e;
+            color: #fff;
+        }
+        .version-btn.active {
+            background: rgba(255, 183, 77, 0.1);
+            border-color: #ffb74d;
+            color: #ffb74d;
+        }
+        .meta-viewer-content {
+            flex: 1;
+            min-width: 0;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            align-items: start;
+        }
+		
+        @media (max-width: 1100px) {
+            .meta-viewer-content {
+                grid-template-columns: 1fr;
+            }
+        }
+		
+        /* ===== REPLACEMENT ICON & POPUP STYLES ===== */
+        .replacement-container {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            z-index: 20;
+        }
+        .replacement-icon-btn {
+            width: 22px;
+            height: 22px;
+            background: #0288d1; /* App theme blue */
+            color: white;
+            border: 2px solid #1a1a22;
+            border-radius: 50%;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            transition: transform 0.2s, background 0.2s;
+        }
+        .replacement-icon-btn:hover {
+            transform: scale(1.1);
+            background: #039be5;
+        }
+        
+        .replacement-tooltip {
+            position: absolute;
+            top: 100%;
+            right: -10px;
+            margin-top: 8px;
+            width: max-content; /* Dynamically expand to fit items */
+            max-width: 320px; /* Prevent it from getting too wide */
+            background: rgba(15, 15, 20, 0.95);
+            backdrop-filter: blur(4px);
+            border: 1px solid #3a3a4c;
+            border-radius: 6px;
+            padding: 8px;
+            z-index: 100;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+            display: none;
+            text-align: left;
+            pointer-events: auto;
+            cursor: default;
+        }
+        
+        /* Show tooltip on hover */
+        .replacement-container:hover .replacement-tooltip {
+            display: block;
+        }
+
+        /* Invisible bridge so mouse doesn't lose hover between icon and tooltip */
+        .replacement-tooltip::after {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: 0;
+            width: 100%;
+            height: 15px;
+            background: transparent;
+        }
+
+        .replacement-tooltip::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            right: 12px;
+            width: 8px;
+            height: 8px;
+            background: rgba(15, 15, 20, 0.95);
+            border-left: 1px solid #3a3a4c;
+            border-top: 1px solid #3a3a4c;
+            transform: rotate(45deg);
+        }
+
+        /* Popup Content */
+        .rep-title {
+            font-size: 11px; /* Smaller text */
+            font-weight: bold;
+            color: #ffb74d;
+            margin-bottom: 6px;
+            text-align: center;
+            border-bottom: 1px solid #3a3a4c;
+            padding-bottom: 4px;
+        }
+        .rep-item-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .rep-item-img {
+            width: 45px; /* Smaller image */
+            height: 45px;
+            background: #0b2e6b;
+            border-radius: 4px;
+            border: 1px solid #64b5f6;
+            object-fit: contain;
+            margin-bottom: 4px;
+        }
+        .rep-item-name {
+            font-size: 12px;
+            color: #64b5f6;
+            font-weight: bold;
+            text-align: center;
+        }
+        .rep-comment {
+            font-size: 11px;
+            color: #e0e0e6;
+            margin: 6px 0;
+            line-height: 1.3;
+            text-align: center;
+            font-style: italic;
+        }
+        .rep-req-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            justify-content: center;
+            margin-top: 6px;
+        }
+        .rep-req-item {
+            display: flex;
+            align-items: center;
+            background: #252532;
+            padding: 2px 6px;
+            border-radius: 12px;
+            font-size: 10px;
+            color: #fff;
+            border: 1px solid #3a3a4c;
+        }
+        .rep-req-item img {
+            width: 14px;
+            height: 14px;
+            object-fit: contain;
+            margin-right: 4px;
+        }
+    </style>
+<script>window.Neutralino = window.Neutralino || { init(){}, events:{ on(){}, off(){}, dispatch(){} } };</script><style>button[onclick*='openEditor']{display:none !important;}</style></head>
+<body>
+
+    <div class="navbar">
+        <div class="navbar-title">GGZ Tools by Extreeme33</div>
+        
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Search by name, ID, or type..." oninput="handleSearch()">
+        </div>
+    </div>
+
+    <div class="main-tab-bar">
+        <button class="main-tab-btn active" onclick="switchMainTab('equipdex', this)">Equipdex</button>
+        <button class="main-tab-btn" onclick="switchMainTab('metalist', this)">Meta List</button>
+        <button class="main-tab-btn" onclick="switchMainTab('stigmata', this)">Stigmata</button>
+    </div>
+
+    <!-- PANEL 1: EQUIPDEX -->
+    <div id="panel-equipdex" class="main-panel-content active">
+        <div class="category-bar">
+            <button class="tab-btn active" onclick="switchCategory('ALL', this)">All</button>
+            <button class="tab-btn" onclick="switchCategory('WEAPONS', this)">Weapons</button>
+            <button class="tab-btn" onclick="switchCategory('CLOTHES', this)">Clothes</button>
+            <button class="tab-btn" onclick="switchCategory('BADGE', this)">Badge</button>
+            <button class="tab-btn" onclick="switchCategory('PET', this)">Pet</button>
+        </div>
+        <div class="grid-container" id="displayGrid"></div>
+        <div class="pagination-container">
+            <div class="pagination-buttons" id="paginationBtns"></div>
+            <div class="pagination-info">
+                Each page displays
+                <input type="number" id="pageSizeInput" class="page-size-input" value="40" min="1" oninput="handlePageSizeChange()">
+                Article, total <span id="totalPagesText">0</span> pages
+            </div>
+        </div>
+    </div>
+
+    <!-- PANEL 2: META LIST -->
+    <div id="panel-metalist" class="main-panel-content">
+        <div class="meta-tab-layout">
+            <!-- Left Sidebar: Version List -->
+            <div class="version-list-sidebar" style="display: flex; flex-direction: column;">
+                <div class="version-list-title">📁 Version List</div>
+                <div id="versionListContainer" style="flex: 1; overflow-y: auto;">
+                    <!-- Version buttons will be injected here -->
+                </div>
+            </div>
+            
+            <!-- Right Side: Meta Loadouts -->
+            <div class="meta-viewer-content" id="metaViewerContainer">
+                <!-- Loadouts will be injected here -->
+                <p style="text-align: center; color: #666; margin-top: 40px;">Select a version to view its Metas.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANEL 3: STIGMATA -->
+    <div id="panel-stigmata" class="main-panel-content">
+        <p style="text-align: center; color: #888; padding-top: 60px; font-size: 15px;">Stigmata Feature Coming Soon!</p>
+    </div>
+
+    <div class="modal-overlay" id="weaponModal">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <span class="close-btn" onclick="toggleModal(false)">&times;</span>
+            <div id="modalDataBox"></div>
+        </div>
+    </div>
+
+    
+
+    <script>
+        
+
+        let database = {};
+        let metaLoadout = {};
+        const grid = document.getElementById('displayGrid');
+
+        const ELEMENT_ICONS = {
+            "none": "", "energy": "element icon/energy.webp", "fire": "element icon/fire.webp",
+            "light": "element icon/light.webp", "physical": "element icon/physical.webp",
+            "poison": "element icon/poison.webp", "snow": "element icon/snow.webp"
+        };
+        const GAME_STAR_ICON = "element icon/star.webp";
+
+        let currentPage = 1;
+        let itemsPerPage = 40;
+        let filteredItems = [];
+        let currentCategory = 'ALL';
+
+        const subcategoryIcons = {
+            "default": "data:image/svg+xml;utf8,<svg xmlns='http://w3.org' viewBox='0 0 24 24' fill='%23ffb74d'><path d='M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49.86c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-.86c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-.86c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49.86c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z'/></svg>"
+        };
+
+        const META_SLOT_CFG = {
+            weapon1: { icon: '⚔️', label: 'Weapon 1' }, weapon2: { icon: '⚔️', label: 'Weapon 2' }, weapon3: { icon: '⚔️', label: 'Weapon 3' },
+            clothes: { icon: '🛡️', label: 'Clothes' }, pet: { icon: '🐾', label: 'Pet' },
+            badge1: { icon: '🏅', label: 'Badge 1' }, badge2: { icon: '🏅', label: 'Badge 2' }, badge3: { icon: '🏅', label: 'Badge 3' }
+        };
+
+        function switchMainTab(panelId, btnElement) {
+            document.querySelectorAll('.main-tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.main-panel-content').forEach(p => p.classList.remove('active'));
+            btnElement.classList.add('active');
+            document.getElementById('panel-' + panelId).classList.add('active');
+            if (panelId === 'equipdex') setupDisplay();
+            if (panelId === 'metalist') renderVersionList();
+        }
+
+        function updateFilteredItems() {
+            const query = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+            const keys = Object.keys(database).sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
+            filteredItems = [];
+
+            keys.forEach(id => {
+                const item = database[id];
+                const name = (item.name || '').toLowerCase();
+                const type = (item.type || '').toLowerCase();
+                const itemId = (item.id || '').toLowerCase();
+
+                const matchesSearch = !query || name.includes(query) || type.includes(query) || itemId.includes(query);
+                let matchesCategory = false;
+                
+                if (currentCategory === 'ALL') matchesCategory = true;
+                else if (currentCategory === 'WEAPONS') matchesCategory = !type.includes('cloth') && !type.includes('badge') && !type.includes('pet');
+                else if (currentCategory === 'CLOTHES') matchesCategory = type.includes('cloth');
+                else if (currentCategory === 'BADGE') matchesCategory = type.includes('badge');
+                else if (currentCategory === 'PET') matchesCategory = type.includes('pet');
+
+                if (matchesSearch && matchesCategory) filteredItems.push(item);
+            });
+        }
+
+        function switchCategory(category, buttonElement) {
+            currentCategory = category;
+            currentPage = 1;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            buttonElement.classList.add('active');
+            updateFilteredItems();
+            setupDisplay();
+        }
+
+        function renderPage() {
+            grid.innerHTML = '';
+            if (filteredItems.length === 0) {
+                grid.innerHTML = `<p style="grid-column: span 5; text-align:center; color:#888; padding-top:40px;">No items found.</p>`;
+                return;
+            }
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, filteredItems.length);
+
+            for (let i = startIndex; i < endIndex; i++) {
+                const item = filteredItems[i];
+                const starCount = (item.stars || '').replace(/[^⭐]/g, '').length || 0;
+                const activeStarSrc = item.starIcon || GAME_STAR_ICON;
+                const starImagesHTML = starCount > 0 ? Array(starCount).fill(`<img src="${activeStarSrc}" style="width:12px; height:12px; object-fit:contain; margin-right:1px;">`).join('') : '';
+
+                grid.innerHTML += `
+                    <div class="item-card" onclick="openPopup('${item.id}')">
+                        <div class="image-box"><img src="${item.img}" alt="${item.name}"></div>
+                        <div class="item-info">
+                            <div class="item-name">${item.name}</div>
+                            <div class="stars" style="display:flex; align-items:center;">${starImagesHTML}</div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function renderPaginationControls() {
+            const btnContainer = document.getElementById('paginationBtns');
+            const totalPagesText = document.getElementById('totalPagesText');
+            if (!btnContainer) return;
+            btnContainer.innerHTML = '';
+            const totalPages = Math.ceil(filteredItems.length / itemsPerPage) || 1;
+            if (totalPagesText) totalPagesText.textContent = totalPages;
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'page-btn'; prevBtn.textContent = '<'; prevBtn.disabled = currentPage === 1;
+            prevBtn.onclick = () => { currentPage--; setupDisplay(); };
+            btnContainer.appendChild(prevBtn);
+
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, startPage + 4);
+            if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
+
+            if (startPage > 1) {
+                appendPageButton(1, btnContainer);
+                if (startPage > 2) {
+                    const dots = document.createElement('span'); dots.className = 'page-dots'; dots.textContent = '...';
+                    btnContainer.appendChild(dots);
+                }
+            }
+            for (let i = startPage; i <= endPage; i++) appendPageButton(i, btnContainer);
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const dots = document.createElement('span'); dots.className = 'page-dots'; dots.textContent = '...';
+                    btnContainer.appendChild(dots);
+                }
+                appendPageButton(totalPages, btnContainer);
+            }
+
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'page-btn'; nextBtn.textContent = '>'; nextBtn.disabled = currentPage === totalPages;
+            nextBtn.onclick = () => { currentPage++; setupDisplay(); };
+            btnContainer.appendChild(nextBtn);
+        }
+
+        function appendPageButton(pageNumber, container) {
+            const btn = document.createElement('button');
+            btn.className = 'page-btn' + (pageNumber === currentPage ? ' active' : '');
+            btn.textContent = pageNumber;
+            btn.onclick = () => { currentPage = pageNumber; setupDisplay(); };
+            container.appendChild(btn);
+        }
+
+        function setupDisplay() { renderPage(); renderPaginationControls(); }
+        function handleSearch() { currentPage = 1; updateFilteredItems(); setupDisplay(); }
+        function handlePageSizeChange() {
+            const input = document.getElementById('pageSizeInput');
+            let value = parseInt(input.value);
+            if (isNaN(value) || value < 1) value = 1;
+            itemsPerPage = value; currentPage = 1; setupDisplay();
+        }
+
+        function renderVersionList() {
+            const container = document.getElementById('versionListContainer');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (metaCategories.length === 0) {
+                container.innerHTML = '<p style="font-size: 12px; color: #666; text-align: center;">No versions saved.</p>';
+                document.getElementById('metaViewerContainer').innerHTML = '<p style="text-align: center; color: #666; margin-top: 40px;">No versions available. Please add one in the editor.</p>';
+                return;
+            }
+
+            metaCategories.forEach((cat, index) => {
+                const isActive = index === 0;
+                container.innerHTML += `
+                    <button class="version-btn ${isActive ? 'active' : ''}" onclick="selectVersion('${cat.id}', this)">
+                        ${cat.name} <span style="font-size: 10px; opacity: 0.7;">(${cat.cards.length})</span>
+                    </button>
+                `;
+            });
+
+            if (metaCategories.length > 0) {
+                renderCategoryCards(metaCategories[0]);
+            }
+        }
+
+        function selectVersion(catId, btnElement) {
+            document.querySelectorAll('.version-btn').forEach(btn => btn.classList.remove('active'));
+            btnElement.classList.add('active');
+
+            const cat = metaCategories.find(c => c.id === catId);
+            if (cat) {
+                renderCategoryCards(cat);
+            } else {
+                document.getElementById('metaViewerContainer').innerHTML = '<p style="text-align: center; color: #666; margin-top: 40px;">Category not found.</p>';
+            }
+        }
+
+        function renderCategoryCards(cat) {
+            const container = document.getElementById('metaViewerContainer');
+            container.innerHTML = '';
+
+            const hasValidCards = cat.cards.some(card => card.loadout && Object.keys(card.loadout).length > 0);
+
+            if (!hasValidCards) {
+                container.innerHTML = `<p style="text-align: center; color: #666; margin-top: 40px;">No equipped loadouts available in "${cat.name}".</p>`;
+                return;
+            }
+
+            cat.cards.forEach(card => {
+                const isEquipped = card.loadout && Object.keys(card.loadout).length > 0;
+                if (!isEquipped) return;
+
+                const cardHtml = `
+                    <div class="meta-loadout-container" style="border: 2px solid #2d2d3e; margin-bottom: 20px;">
+                        <div class="meta-header-row">
+                            <div class="meta-team-title">${card.name}</div>
+                            <div class="meta-stats-group">
+                                <div>Total Weight: <span class="meta-stat-value" id="w_${card.id}">0 / 259</span></div>
+                                <div>Combat Power: <span class="meta-stat-value" id="p_${card.id}">0</span></div>
+                            </div>
+                        </div>
+                        <div class="meta-layout-grid" style="grid-template-columns: 70px 1fr; gap: 15px;">
+                            <div class="meta-character-column">
+                                <div class="meta-avatar-slot" style="width: 70px; height: 70px; font-size: 24px; cursor: ${card.loadout.avatar ? 'pointer' : 'default'};" title="Avatar" ${card.loadout.avatar ? `onclick="openPopup('${card.loadout.avatar}')"` : ''}>
+                                    ${card.loadout.avatar ? '<img src="' + (database[card.loadout.avatar] ? database[card.loadout.avatar].img : card.loadout.avatar) + '">' : '👤'}
+                                </div>
+                                <span style="font-size: 10px; font-weight: bold; color: #ffb74d; letter-spacing: 0.5px;">AVATAR</span>
+                            </div>
+                            <div class="meta-equipment-box" style="gap: 10px;">
+                                <div style="display: grid; grid-template-columns: 1fr 10px 1fr 1fr 1fr; gap: 10px;">
+                                    ${renderSlotHtml('clothes', card)}
+                                    <div></div>
+                                    ${renderSlotHtml('weapon1', card)}
+                                    ${renderSlotHtml('weapon2', card)}
+                                    ${renderSlotHtml('weapon3', card)}
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 10px 1fr 1fr 1fr; gap: 10px; margin-top: 10px;">
+                                    ${renderSlotHtml('pet', card)}
+                                    <div></div>
+                                    ${renderSlotHtml('badge1', card)}
+                                    ${renderSlotHtml('badge2', card)}
+                                    ${renderSlotHtml('badge3', card)}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += cardHtml;
+            });
+
+            cat.cards.forEach(card => {
+                let totalWeight = 0, combatPower = 0;
+                Object.keys(META_SLOT_CFG).forEach(slot => {
+                    const id = card.loadout[slot];
+                    if (!id || !database[id]) return;
+                    totalWeight += parseFloat(database[id].loadCap) || 0;
+                    combatPower += parseFloat(database[id].maxAtk) || 0;
+                });
+                const wEl = document.getElementById('w_' + card.id);
+                const pEl = document.getElementById('p_' + card.id);
+                if (wEl) wEl.textContent = totalWeight + ' / 259';
+                if (pEl) pEl.textContent = combatPower;
+            });
+        }
+
+        function renderSlotHtml(slotId, card) {
+            const cfg = META_SLOT_CFG[slotId];
+            const assignedId = card.loadout[slotId];
+            const item = assignedId ? database[assignedId] : null;
+            const noteText = card.notes && card.notes[slotId] ? card.notes[slotId] : '';
+
+            if (!item) {
+                return '<div></div>'; 
+            }
+
+            const fillClass = 'filled';
+            const inner = '<img src="' + item.img + '" alt="' + item.name + '"><div class="meta-slot-item-name">' + item.name + '</div>';
+            const clickAction = `onclick="openPopup('${item.id}')" style="aspect-ratio: 1 / 1; width: 100%; cursor: pointer; position: relative;"`;
+
+            const alts = card.alternatives && card.alternatives[slotId] ? card.alternatives[slotId] : [];
+            let replacementHtml = '';
+
+            if (alts.length > 0) {
+                // Build the tooltip content
+                let tooltipContent = '<div class="rep-title">Replacements</div>';
+                
+                // Start the flex container for horizontal layout
+                tooltipContent += '<div style="display: flex; flex-direction: row; gap: 12px; align-items: flex-start; justify-content: center;">';
+
+                alts.forEach(alt => {
+                    const mainItem = database[alt.mainItem];
+                    if (!mainItem) return;
+
+                    tooltipContent += `<div class="rep-item-card" style="width: 100px;">`; // Fixed width for each item
+                    
+                    // Clicking the image/name opens the item detail popup
+                    tooltipContent += `
+                        <div style="cursor: pointer; display: flex; flex-direction: column; align-items: center;" onclick="event.stopPropagation(); openPopup('${mainItem.id}');">
+                            <img src="${mainItem.img}" class="rep-item-img">
+                            <div class="rep-item-name">${mainItem.name}</div>
+                        </div>
+                    `;
+                    
+                    if (alt.comment) {
+                        tooltipContent += `<div class="rep-comment">"${alt.comment}"</div>`;
+                    }
+
+                    if (alt.requiredItems && alt.requiredItems.length > 0) {
+                        tooltipContent += `<div class="rep-req-list">`;
+                        alt.requiredItems.forEach(reqId => {
+                            const reqItem = database[reqId];
+                            if (reqItem) {
+                                tooltipContent += `
+                                    <div class="rep-req-item" style="cursor: pointer;" onclick="event.stopPropagation(); openPopup('${reqItem.id}');">
+                                        <img src="${reqItem.img}"> ${reqItem.name}
+                                    </div>`;
+                            }
+                        });
+                        tooltipContent += `</div>`;
+                    }
+                    tooltipContent += `</div>`;
+                });
+
+                // Close the flex container
+                tooltipContent += '</div>';
+
+                // Group the icon and tooltip in a container for proper hover handling
+                replacementHtml = `
+                    <div class="replacement-container">
+                        <div class="replacement-icon-btn">&#x21bb;</div>
+                        <div class="replacement-tooltip">
+                            ${tooltipContent}
+                        </div>
+                    </div>
+                `;
+            }
+
+            let html = `
+                <div style="display: flex; flex-direction: column; width: 100%; min-width: 0; min-height: 0;">
+                    <div class="meta-item-slot ${fillClass}" ${clickAction}>
+                        ${inner}
+                        ${replacementHtml}
+                    </div>`;
+            
+            if (noteText.trim() !== '') {
+                html += `
+                    <div style="margin-top: 6px; width: 100%; background: #121216; border: 1px solid #3a3a4c; color: #ffb74d; padding: 4px 6px; border-radius: 4px; font-size: 11px; box-sizing: border-box; text-align: center;">
+                        ${noteText}
+                    </div>`;
+            }
+
+            html += `</div>`;
+            return html;
+        }
+
+        function hideTooltip(event) {
+            if (event) event.stopPropagation();
+            // Force the tooltip to hide immediately
+            const container = event.target.closest('.replacement-container');
+            if (container) {
+                container.style.display = 'none';
+                // Restore it after a short delay so it works next time you hover
+                setTimeout(() => { container.style.display = ''; }, 500);
+            }
+        }
+
+        function openPopup(id) {
+            const item = database[id]; if (!item) return;
+            const box = document.getElementById('modalDataBox'); if (!box) return;
+            const mainElement = item.itemElement || 'none';
+
+            const elementPopupColors = {
+                "energy": "rgba(43, 17, 66, 0.45)", "fire": "rgba(74, 16, 16, 0.45)",
+                "light": "rgba(55, 48, 8, 0.7)", "poison": "rgba(16, 54, 25, 0.45)",
+                "none": "rgba(20, 20, 20, 0.45)", "physical": "rgba(20, 20, 20, 0.45)",
+                "snow": "rgba(16, 44, 74, 0.45)"
+            };
+            const activeItemElement = (mainElement || 'none').toLowerCase().trim();
+            const dynamicBgColor = elementPopupColors[activeItemElement] || "rgba(26, 26, 26, 0.7)";
+            document.querySelector('.modal-content').style.background = dynamicBgColor;
+
+            const dismantleText = item.dismantle !== false ? '* This item can be dismantled *' : '* This item cannot be dismantled *';
+            const stackingText = item.stacking === true ? 'Multiple item can be used and the value is stackable' : 'Multiple item cannot be used and the value is ineffective';
+            const subCat = item.subcategory || "Role";
+            const iconSrc = item.categoryIcon || subcategoryIcons["default"];
+
+            const starCountPopup = (item.stars || '').replace(/[^⭐]/g, '').length || 0;
+            const activePopupStarSrc = item.starIcon || GAME_STAR_ICON;
+            const starImagesPopup = starCountPopup > 0 ? Array(starCountPopup).fill('<img src="' + activePopupStarSrc + '" style="width:16px; height:16px; object-fit:contain; margin-right:2px; vertical-align:middle;">').join('') : '';
+            const displayCrit = (item.critRate || '0').toString().includes('%') ? item.critRate : (item.critRate || '0') + '%';
+
+            let mainElementHtml = '';
+            if (mainElement !== 'none') {
+                const resolvedElementSrc = item.elementIcon || ELEMENT_ICONS[mainElement] || '';
+                if (resolvedElementSrc) mainElementHtml = '            <div class="item-element-icon-wrapper" data-tooltip="' + mainElement + '"><img class="item-element-icon-img" src="' + resolvedElementSrc + '"></div>';
+            }
+
+            const statsConfig = [
+                { label: "Load capacity:", value: item.loadCap }, { label: "Maximum level:", value: item.maxLevel },
+                { label: "Max Attack:", value: item.maxAtk }, { label: "Max HP:", value: item.maxHp },
+                { label: "Max level attack speed:", value: item.atkSpeed },
+                { label: "Max Ammo:", value: item.maxAmmo }, { label: "Crit Rate:", value: displayCrit },
+                { label: "Max on field:", value: item.maxOnField }, { label: "Duration on field:", value: item.durationOnField }
+            ];
+
+            let statsRowsHtml = '';
+            statsConfig.forEach(stat => {
+                const valStr = (stat.value || '').toString().trim();
+                const lowerVal = valStr.toLowerCase();
+                if (valStr !== '' && valStr !== '0' && valStr !== '0%' && lowerVal !== 'none') {
+                    statsRowsHtml += '    <div class="stat-item"><span class="stat-label">' + stat.label + '</span> <span class="stat-value">' + stat.value + '</span></div>';
+                }
+            });
+
+            const fullDescriptionText = (item.skillDesc1 || '') + (item.skillDesc2 || '') + (item.skillDesc3 || '') + (item.skillDesc4 || '') + (item.passiveDesc || '') + (item.petAtkDesc || '') + (item.petSkillDesc || '') + (item.petUnlockedDesc || '') + (item.petPassiveDesc || '');
+
+            const colorDefinitions = [
+                { hex: "#ffb74d", rgb: "rgb(255, 183, 77)", label: "Time Details" }, { hex: "#64b5f6", rgb: "rgb(100, 181, 246)", label: "Multiplier and Value" },
+                { hex: "#81c784", rgb: "rgb(129, 199, 132)", label: "Miscellaneous" }, { hex: "#e57373", rgb: "rgb(229, 115, 115)", label: "Debuff" },
+                { hex: "#b388ff", rgb: "rgb(179, 136, 255)", label: "Buff" }
+            ];
+
+            let legendBoxesHtml = '';
+            colorDefinitions.forEach(def => {
+                const cleanHex = def.hex.replace('#', '');
+                const parserContainer = document.createElement('div');
+                parserContainer.innerHTML = fullDescriptionText;
+                const styledElements = parserContainer.querySelectorAll('[style*="color"], font[color]');
+                let colorIsUsed = false;
+                styledElements.forEach(el => {
+                    const inlineStyle = el.getAttribute('style') || '';
+                    const inlineColor = el.getAttribute('color') || '';
+                    if ((inlineColor.toLowerCase().includes(cleanHex.toLowerCase()) || inlineStyle.toLowerCase().includes(cleanHex.toLowerCase()) || inlineStyle.toLowerCase().includes(def.rgb.toLowerCase())) && el.textContent.trim() !== '') colorIsUsed = true;
+                });
+                if (colorIsUsed) legendBoxesHtml += '    <div class="color-indicator-square" style="background: ' + def.hex + ';" data-tooltip="' + def.label + '"></div>';
+            });
+
+            let finalLegendSectionHtml = '';
+            if (legendBoxesHtml !== '') finalLegendSectionHtml = '<div class="color-legend-container"><span class="color-legend-label">Color Details</span><div class="color-squares-row">' + legendBoxesHtml + '</div></div>';
+
+            let subCategoryHtml = '';
+            const cleanSubCat = (subCat || '').toString().trim().toLowerCase();
+            const cleanIconSrc = (iconSrc || '').toString().trim().toLowerCase();
+            if (subCat && cleanSubCat !== 'none' && iconSrc && !cleanIconSrc.includes('none')) {
+                subCategoryHtml = '<div class="subcategory-icon-wrapper" data-tooltip="' + subCat + '"><img class="subcategory-icon-img" src="' + iconSrc + '"></div>';
+            }
+
+            let htmlContent = '<div class="popup-header"><div class="popup-img"><img src="' + item.img + '"></div><div class="popup-title-area"><div class="popup-title-container"><h2 style="color:#fff;">No.' + item.id + ' ' + item.name + '</h2>' + subCategoryHtml + mainElementHtml + '</div><div class="popup-stars" style="display:flex; align-items:center; margin-top:2px;">' + starImagesPopup + '</div></div></div><div class="disassemble-text" style="color:#aaaaaa; font-weight:bold;">' + dismantleText + '</div><div class="ineffective-text" style="color:#ffa726; font-weight:bold; margin-bottom:15px;">' + stackingText + '</div><div class="stats-table">' + statsRowsHtml + '    <div class="stat-type" style="grid-column: span 2;"><span class="stat-label">Type:</span> <span class="stat-value" style="color:#ffb74d;">' + item.type + '</span></div>' + finalLegendSectionHtml + '</div>';
+
+            if (item.skillTitle1) {
+                let el1 = item.skillElement1 || 'none';
+                let resolvedSkillElSrc1 = item.skilltitleicon1 || item.skilltitleicon || ELEMENT_ICONS[el1] || '';
+                let iconHtml1 = (el1 !== 'none' && resolvedSkillElSrc1) ? '<div class="element-icon-wrapper" data-tooltip="' + el1 + '"><img class="element-icon-img" src="' + resolvedSkillElSrc1 + '"></div>' : '';
+                htmlContent += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;"><div class="skill-title-container"><div class="skill-title" style="color:#ffb74d; font-weight:bold; font-size:15px; margin-bottom:0;">' + item.skillTitle1 + '</div>' + iconHtml1 + '</div><div class="skill-desc" style="color:#fff; font-size:14px; line-height:1.4;">' + (item.skillDesc1 || '') + '</div></div>';
+            }
+            if (item.skillTitle2) {
+                let el2 = item.skillElement2 || 'none';
+                let resolvedSkillElSrc2 = item.skilltitleicon2 || ELEMENT_ICONS[el2] || '';
+                let iconHtml2 = (el2 !== 'none' && resolvedSkillElSrc2) ? '<div class="element-icon-wrapper" data-tooltip="' + el2 + '"><img class="element-icon-img" src="' + resolvedSkillElSrc2 + '"></div>' : '';
+                htmlContent += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;"><div class="skill-title-container"><div class="skill-title" style="color:#ffb74d; font-weight:bold; font-size:15px; margin-bottom:0;">' + item.skillTitle2 + '</div>' + iconHtml2 + '</div><div class="skill-desc" style="color:#fff; font-size:14px; line-height:1.4;">' + (item.skillDesc2 || '') + '</div></div>';
+            }
+            if (item.skillTitle3) {
+                let el3 = item.skillElement3 || 'none';
+                let resolvedSkillElSrc3 = item.skilltitleicon3 || ELEMENT_ICONS[el3] || '';
+                let iconHtml3 = (el3 !== 'none' && resolvedSkillElSrc3) ? '<div class="element-icon-wrapper" data-tooltip="' + el3 + '"><img class="element-icon-img" src="' + resolvedSkillElSrc3 + '"></div>' : '';
+                htmlContent += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;"><div class="skill-title-container"><div class="skill-title" style="color:#ffb74d; font-weight:bold; font-size:15px; margin-bottom:0;">' + item.skillTitle3 + '</div>' + iconHtml3 + '</div><div class="skill-desc" style="color:#fff; font-size:14px; line-height:1.4;">' + (item.skillDesc3 || '') + '</div></div>';
+            }
+            if (item.skillTitle4) {
+                let el4 = item.skillElement4 || 'none';
+                let resolvedSkillElSrc4 = item.skilltitleicon4 || ELEMENT_ICONS[el4] || '';
+                let iconHtml4 = (el4 !== 'none' && resolvedSkillElSrc4) ? '<div class="element-icon-wrapper" data-tooltip="' + el4 + '"><img class="element-icon-img" src="' + resolvedSkillElSrc4 + '"></div>' : '';
+                htmlContent += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;"><div class="skill-title-container"><div class="skill-title" style="color:#ffb74d; font-weight:bold; font-size:15px; margin-bottom:0;">' + item.skillTitle4 + '</div>' + iconHtml4 + '</div><div class="skill-desc" style="color:#fff; font-size:14px; line-height:1.4;">' + (item.skillDesc4 || '') + '</div></div>';
+            }
+            if (item.passiveTitle) {
+                htmlContent += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;"><div class="skill-title-container"><div class="skill-title" style="color:#64b5f6; font-weight:bold; font-size:15px; margin-bottom:0;">[Passive] ' + item.passiveTitle + '</div></div><div class="skill-desc" style="color:#fff; font-size:14px; line-height:1.4;">' + (item.passiveDesc || '') + '</div></div>';
+            }
+            if (item.petAtkTitle) {
+                htmlContent += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;"><div class="skill-title-container"><div class="skill-title" style="color:#ffb74d; font-weight:bold; font-size:15px; margin-bottom:0;">[Attack] ' + item.petAtkTitle + '</div></div><div class="skill-desc" style="color:#fff; font-size:14px; line-height:1.4;">' + (item.petAtkDesc || '') + '</div></div>';
+            }
+            if (item.petSkillTitle) {
+                htmlContent += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;"><div class="skill-title-container"><div class="skill-title" style="color:#ffb74d; font-weight:bold; font-size:15px; margin-bottom:0;">[Skill] ' + item.petSkillTitle + '</div></div><div class="skill-desc" style="color:#fff; font-size:14px; line-height:1.4;">' + (item.petSkillDesc || '') + '</div></div>';
+            }
+            if (item.petUnlockedTitle) {
+                htmlContent += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;"><div class="skill-title-container"><div class="skill-title" style="color:#ffb74d; font-weight:bold; font-size:15px; margin-bottom:0;">[Unlocked Skill] ' + item.petUnlockedTitle + '</div></div><div class="skill-desc" style="color:#fff; font-size:14px; line-height:1.4;">' + (item.petUnlockedDesc || '') + '</div></div>';
+            }
+            if (item.petPassiveTitle) {
+                htmlContent += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;"><div class="skill-title-container"><div class="skill-title" style="color:#ffb74d; font-weight:bold; font-size:15px; margin-bottom:0;">[Passive] ' + item.petPassiveTitle + '</div></div><div class="skill-desc" style="color:#fff; font-size:14px; line-height:1.4;">' + (item.petPassiveDesc || '') + '</div></div>';
+            }
+
+            if (item.refinedFrom) {
+                const relLabel = (parseInt(item.refinedFrom, 10) || 0) > (parseInt(item.id, 10) || 0) ? "Refined into :" : "Refined from :";
+                const linkedItemData = database[item.refinedFrom] || null;
+                const refSubCat = item.refinedSubcategory || (linkedItemData ? (linkedItemData.subcategory || "Role") : "Role");
+                const refIconSrc = item.refinedCategoryIcon || (linkedItemData ? linkedItemData.categoryIcon : '') || subcategoryIcons["default"];
+                const refStarSrc = item.refinedStarIcon || (linkedItemData ? linkedItemData.starIcon : '') || GAME_STAR_ICON;
+                const starCountPopup = (linkedItemData && linkedItemData.stars || '').replace(/[^⭐]/g, '').length || 1;
+                const evolutionStarImages = starCountPopup > 0 ? Array(starCountPopup).fill('<img src="' + refStarSrc + '" style="width:11px; height:11px; object-fit:contain; margin-right:1px; vertical-align:middle;">').join('') : '';
+
+                let refElementHtml = '';
+                let finalElementSrc = item.refinedElementIcon;
+                const prevElementVal = linkedItemData ? (linkedItemData.itemElement || 'none') : 'none';
+                if (!finalElementSrc && linkedItemData) {
+                    finalElementSrc = linkedItemData.elementIcon;
+                    if (!finalElementSrc && linkedItemData.itemElement && linkedItemData.itemElement !== 'none') finalElementSrc = ELEMENT_ICONS[linkedItemData.itemElement] || '';
+                }
+                if (finalElementSrc) refElementHtml = '<div class="item-element-icon-wrapper" data-tooltip="' + prevElementVal + '" style="width:16px; height:16px; display:inline-flex; align-items:center;"><img src="' + finalElementSrc + '" style="width:100%; height:100%; object-fit:contain;"></div>';
+
+                const refName = linkedItemData ? linkedItemData.name : "Unknown Item";
+                const refImg = linkedItemData ? linkedItemData.img : item.img;
+
+                htmlContent += '<div class="evolution-section" style="margin-top: 18px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px;"><div class="evolution-label" style="color: #ffb74d; font-size: 14px; font-weight: bold; margin-bottom: 8px;">' + relLabel + '</div><div class="evolution-card" onclick="openPopup(\'' + item.refinedFrom + '\')" style="display: inline-flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.04); padding: 8px 14px; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background=\'rgba(255,255,255,0.1)\'" onmouseout="this.style.background=\'rgba(255,255,255,0.04)\'"><div style="width: 36px; height: 36px; background: #0b2e6b; border-radius: 4px; overflow: hidden; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><img src="' + refImg + '" style="width: 100%; height: 100%; object-fit: contain;"></div><div style="display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 4px;"><div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;"><div style="color: #ffffff; font-size: 13px; font-weight: bold; line-height: 1.2;">No.' + item.refinedFrom + ' ' + refName + '</div><div class="subcategory-icon-wrapper" data-tooltip="' + refSubCat + '" style="width: 16px; height: 16px;"><img class="subcategory-icon-img" src="' + refIconSrc + '"></div>' + refElementHtml + '</div><div style="display: flex; align-items: center; line-height: 1;">' + evolutionStarImages + '</div></div></div></div>';
+            }
+
+            let mediaButtonsHtml = '';
+            if (item.kizunaImg || item.kizuna2Img || item.skinImg || item.skin2Img) {
+                mediaButtonsHtml += '<div style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px; display: flex; flex-direction: column; gap: 8px;">';
+                if (item.kizunaImg || item.kizuna2Img) {
+                    mediaButtonsHtml += '    <div style="display: flex; gap: 10px;">';
+                    if (item.kizunaImg) mediaButtonsHtml += '        <button onclick="viewAnimeArtwork(\'' + item.kizunaImg + '\')" style="flex: 1; background: #ab47bc; color: #ffffff; border: none; padding: 10px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; transition: background 0.2s;" onmouseover="this.style.background=\'#ba68c8\'" onmouseout="this.style.background=\'#ab47bc\'">View Kizuna</button>';
+                    if (item.kizuna2Img) mediaButtonsHtml += '        <button onclick="viewAnimeArtwork(\'' + item.kizuna2Img + '\')" style="flex: 1; background: #7b1fa2; color: #ffffff; border: none; padding: 10px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; transition: background 0.2s;" onmouseover="this.style.background=\'#8e24aa\'" onmouseout="this.style.background=\'#7b1fa2\'">View Kizuna 2nd</button>';
+                    mediaButtonsHtml += '    </div>';
+                }
+                if (item.skinImg || item.skin2Img) {
+                    mediaButtonsHtml += '    <div style="display: flex; gap: 10px;">';
+                    if (item.skinImg) mediaButtonsHtml += '        <button onclick="viewAnimeArtwork(\'' + item.skinImg + '\')" style="flex: 1; background: #ec407a; color: #ffffff; border: none; padding: 10px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; transition: background 0.2s;" onmouseover="this.style.background=\'#f06292\'" onmouseout="this.style.background=\'#ec407a\'">View Skin</button>';
+                    if (item.skin2Img) mediaButtonsHtml += '        <button onclick="viewAnimeArtwork(\'' + item.skin2Img + '\')" style="flex: 1; background: #c2185b; color: #ffffff; border: none; padding: 10px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; transition: background 0.2s;" onmouseover="this.style.background=\'#d81b60\'" onmouseout="this.style.background=\'#c2185b\'">View Skin 2nd</button>';
+                    mediaButtonsHtml += '    </div>';
+                }
+                mediaButtonsHtml += '</div>'; htmlContent += mediaButtonsHtml;
+            }
+
+            box.innerHTML = htmlContent; toggleModal(true);
+
+            const modalContentElement = document.querySelector('.modal-content');
+            if (modalContentElement) {
+                let isDown = false; let startMouseX, startMouseY, lastMouseX, lastMouseY; let moveX = 0, moveY = 0;
+                modalContentElement.addEventListener('mousedown', (e) => {
+                    if (e.target.closest('button') || e.target.closest('input') || e.target.closest('select') || e.target.closest('.evolution-card')) return;
+                    isDown = true; startMouseX = e.pageX; startMouseY = e.pageY; lastMouseX = e.pageX; lastMouseY = e.pageY; moveX = 0; moveY = 0;
+                });
+                window.addEventListener('mouseup', () => {
+                    if (!isDown) return; isDown = false;
+                    if (Math.abs(moveX) < 4 && Math.abs(moveY) < 4) window.getSelection()?.removeAllRanges();
+                });
+                window.addEventListener('mousemove', (e) => {
+                    if (!isDown) return;
+                    const frameDeltaX = Math.abs(e.pageX - lastMouseX); const frameDeltaY = Math.abs(e.pageY - lastMouseY);
+                    moveX = Math.abs(e.pageX - startMouseX); moveY = Math.abs(e.pageY - startMouseY);
+                    if (frameDeltaX > 0.5 || frameDeltaY > 0.5) {
+                        if ((frameDeltaY / (frameDeltaX + frameDeltaY)) >= 0.80) {
+                            e.preventDefault(); modalContentElement.scrollTop = modalContentElement.scrollTop - ((e.pageY - lastMouseY) * 1.5);
+                        }
+                    }
+                    lastMouseX = e.pageX; lastMouseY = e.pageY;
+                });
+            }
+        }
+
+        function toggleModal(show) { document.getElementById('weaponModal').style.display = show ? 'flex' : 'none'; }
+        (function() {
+            const overlay = document.getElementById('weaponModal'); if (!overlay) return;
+            let startedOnOverlay = false;
+            overlay.addEventListener('mousedown', (e) => { startedOnOverlay = (e.target === overlay); });
+            overlay.addEventListener('mouseup', (e) => { if (startedOnOverlay && e.target === overlay) toggleModal(false); startedOnOverlay = false; });
+        })();
+
+        function viewAnimeArtwork(imageSrc) {
+            const lightbox = document.getElementById('artworkLightbox');
+            const targetImg = document.getElementById('lightboxTargetImage');
+            if (lightbox && targetImg) { targetImg.src = imageSrc; lightbox.style.display = 'flex'; }
+        }
+        function closeAnimeArtwork() { document.getElementById('artworkLightbox').style.display = 'none'; }
+
+        let metaCategories = [];
+
+        async function loadNeutralinoDatabase() {
+            try {
+                let rawData = await Neutralino.storage.getData('game_database');
+                database = JSON.parse(rawData) || {};
+            } catch (err) { database = {}; }
+
+            try {
+                let rawMeta = await Neutralino.storage.getData('meta_registry_v2');
+                metaCategories = JSON.parse(rawMeta) || [];
+            } catch (err) { metaCategories = []; }
+
+            updateFilteredItems();
+            setupDisplay();
+            
+            if (document.getElementById('panel-metalist').classList.contains('active')) {
+                renderVersionList(); 
+            }
+        }
+		
+        function openEditorWindow() {
+            Neutralino.window.create('/editor.html', {
+                title: "Advanced Item Database Editor",
+                width: 1100,
+                height: 850,
+                maximizable: true
+            });
+        }
+
+        
+        
+        
+    </script>
+
+    <div id="artworkLightbox" onclick="closeAnimeArtwork()" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 10, 15, 0.95); z-index: 2000; align-items: center; justify-content: center; cursor: zoom-out;">
+        <span style="position: absolute; top: 20px; right: 25px; color: #fff; font-size: 35px; font-weight: bold; cursor: pointer;">&times;</span>
+        <img id="lightboxTargetImage" src="" style="max-width: 90%; max-height: 90%; object-fit: contain; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.1);">
+    </div>
+<script>
+        async function loadNeutralinoDatabase() {
+            try {
+                const response = await fetch('storage.json?v=' + Date.now());
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+                database = await response.json();
+            } catch (err) {
+                console.error("Failed to load storage.json", err);
+                database = {};
+            }
+            updateFilteredItems();
+            setupDisplay();
+        }
+        loadNeutralinoDatabase();
+    </script></body>
+</html>
