@@ -1058,13 +1058,25 @@
             try {
                 const response = await fetch('storage.json?v=' + Date.now());
                 if (!response.ok) throw new Error('HTTP ' + response.status);
-                database = await response.json();
+                const data = await response.json();
+                if (data && typeof data === 'object' && data.game_database) {
+                    // bundle format: { game_database: {...}, meta_registry_v2: [...] }
+                    database = data.game_database || {};
+                    metaCategories = Array.isArray(data.meta_registry_v2) ? data.meta_registry_v2 : [];
+                } else {
+                    // legacy format: the file IS the item database
+                    database = data || {};
+                    metaCategories = [];
+                }
             } catch (err) {
                 console.error("Failed to load storage.json", err);
                 database = {};
+                metaCategories = [];
             }
             updateFilteredItems();
             setupDisplay();
+            const metaPanel = document.getElementById('panel-metalist');
+            if (metaPanel && metaPanel.classList.contains('active') && typeof renderVersionList === 'function') renderVersionList();
         }
         loadNeutralinoDatabase();
     </script></body>
