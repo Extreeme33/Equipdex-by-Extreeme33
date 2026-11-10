@@ -521,13 +521,45 @@
     </div>
 
     <div class="main-tab-bar">
-        <button class="main-tab-btn active" onclick="switchMainTab('equipdex', this)">Equipdex</button>
+        <button class="main-tab-btn active" onclick="switchMainTab('announcement', this)">Announcement</button>
+        <button class="main-tab-btn" onclick="switchMainTab('equipdex', this)">Equipdex</button>
         <button class="main-tab-btn" onclick="switchMainTab('metalist', this)">Meta List</button>
         <button class="main-tab-btn" onclick="switchMainTab('stigmata', this)">Characters</button>
     </div>
 
+    <!-- PANEL 0: ANNOUNCEMENT -->
+    <div id="panel-announcement" class="main-panel-content active">
+        <div style="max-width: 800px; margin: 20px auto; padding: 0 15px;">
+            
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;">
+                <h2 style="color: #ffb74d; margin: 0; font-weight: bold;">📢 Official Announcements</h2>
+                <a href="https://www.mihoyo.co.jp/" target="_blank" style="color: #64b5f6; text-decoration: none; font-size: 13px; font-weight: bold;">Open Site Directly ↗</a>
+            </div>
+            
+            <!-- Container for the banners injected by the Editor -->
+            <div id="announcementContainer" style="display: flex; flex-direction: column; gap: 15px;">
+                        <a href="http://www.mihoyo.co.jp/information/entry.php?ID=2911" target="_blank" style="display: block; border-radius: 8px; overflow: hidden; border: 1px solid #2d2d35; transition: transform 0.2s, border-color 0.2s;" onmouseover="this.style.transform='scale(1.01)'; this.style.borderColor='#ffb74d';" onmouseout="this.style.transform='scale(1)'; this.style.borderColor='#2d2d35';">
+                            <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1540_img.png" alt="Announcement Banner" style="width: 100%; display: block;">
+                        </a>
+                    
+                        <a href="http://www.mihoyo.co.jp/information/entry.php?ID=2910" target="_blank" style="display: block; border-radius: 8px; overflow: hidden; border: 1px solid #2d2d35; transition: transform 0.2s, border-color 0.2s;" onmouseover="this.style.transform='scale(1.01)'; this.style.borderColor='#ffb74d';" onmouseout="this.style.transform='scale(1)'; this.style.borderColor='#2d2d35';">
+                            <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1539_img.png" alt="Announcement Banner" style="width: 100%; display: block;">
+                        </a>
+                    
+                        <a href="http://www.mihoyo.co.jp/information/entry.php?ID=2909" target="_blank" style="display: block; border-radius: 8px; overflow: hidden; border: 1px solid #2d2d35; transition: transform 0.2s, border-color 0.2s;" onmouseover="this.style.transform='scale(1.01)'; this.style.borderColor='#ffb74d';" onmouseout="this.style.transform='scale(1)'; this.style.borderColor='#2d2d35';">
+                            <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1538_img.png" alt="Announcement Banner" style="width: 100%; display: block;">
+                        </a>
+                    
+                        <a href="http://www.mihoyo.co.jp/information/entry.php?ID=2908" target="_blank" style="display: block; border-radius: 8px; overflow: hidden; border: 1px solid #2d2d35; transition: transform 0.2s, border-color 0.2s;" onmouseover="this.style.transform='scale(1.01)'; this.style.borderColor='#ffb74d';" onmouseout="this.style.transform='scale(1)'; this.style.borderColor='#2d2d35';">
+                            <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1537_img.png" alt="Announcement Banner" style="width: 100%; display: block;">
+                        </a>
+                    </div>
+
+        </div>
+    </div>
+
     <!-- PANEL 1: EQUIPDEX -->
-    <div id="panel-equipdex" class="main-panel-content active">
+    <div id="panel-equipdex" class="main-panel-content">
         <div class="category-bar">
             <button class="tab-btn active" onclick="switchCategory('ALL', this)">All</button>
             <button class="tab-btn" onclick="switchCategory('WEAPONS', this)">Weapons</button>
@@ -1331,6 +1363,27 @@
                 let rawMeta = await Neutralino.storage.getData('meta_registry_v2');
                 metaCategories = JSON.parse(rawMeta) || [];
             } catch (err) { metaCategories = []; }
+
+            // NEW: Load announcements locally to display them right away
+            try {
+                let rawAnn = await Neutralino.storage.getData('scraped_announcements');
+                let announcements = JSON.parse(rawAnn) || [];
+                const annContainer = document.getElementById('announcementContainer');
+                
+                if (annContainer && announcements.length > 0) {
+                    let html = '';
+                    announcements.forEach(ann => {
+                        html += `
+                            <a href="${ann.link}" target="_blank" style="display: block; border-radius: 8px; overflow: hidden; border: 1px solid #2d2d35; transition: transform 0.2s, border-color 0.2s;" onmouseover="this.style.transform='scale(1.01)'; this.style.borderColor='#ffb74d';" onmouseout="this.style.transform='scale(1)'; this.style.borderColor='#2d2d35';">
+                                <img src="${ann.img}" alt="Announcement Banner" style="width: 100%; display: block;">
+                            </a>
+                        `;
+                    });
+                    annContainer.innerHTML = html;
+                }
+            } catch (err) {
+                // If no announcements exist locally yet, keep the "Loading announcements..." text
+            }
 
             updateFilteredItems();
             setupDisplay();
