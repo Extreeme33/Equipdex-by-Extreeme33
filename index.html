@@ -582,21 +582,45 @@
             
             <!-- Container for the banners injected by the Editor -->
             <div id="announcementContainer" style="display: flex; flex-direction: column; gap: 15px;">
-                        <a href="http://www.mihoyo.co.jp/information/entry.php?ID=2911" target="_blank" style="display: block; border-radius: 8px; overflow: hidden; border: 1px solid #2d2d35; transition: transform 0.2s, border-color 0.2s;" onmouseover="this.style.transform='scale(1.01)'; this.style.borderColor='#ffb74d';" onmouseout="this.style.transform='scale(1)'; this.style.borderColor='#2d2d35';">
-                            <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1540_img.png" alt="Announcement Banner" style="width: 100%; display: block;">
-                        </a>
+                        <div class="ann-banner-container" onclick="openAnnModal('【イベント】赤紅の響き', '11/6(金)12:00～11/22(日)24:00', 'http://www.mihoyo.co.jp/information/entry.php?ID=2911')">
+                            <div class="ann-header">
+                                <div class="ann-title">【イベント】赤紅の響き</div>
+                                <div class="ann-countdown" id="countdown_0" data-date="11/6(金)12:00～11/22(日)24:00">Ends in: Calculating...</div>
+                            </div>
+                            <div class="ann-img-wrapper">
+                                <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1540_img.png" alt="Banner">
+                            </div>
+                        </div>
                     
-                        <a href="http://www.mihoyo.co.jp/information/entry.php?ID=2910" target="_blank" style="display: block; border-radius: 8px; overflow: hidden; border: 1px solid #2d2d35; transition: transform 0.2s, border-color 0.2s;" onmouseover="this.style.transform='scale(1.01)'; this.style.borderColor='#ffb74d';" onmouseout="this.style.transform='scale(1)'; this.style.borderColor='#2d2d35';">
-                            <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1539_img.png" alt="Announcement Banner" style="width: 100%; display: block;">
-                        </a>
+                        <div class="ann-banner-container" onclick="openAnnModal('従魔「闇時計･永夜」再登場！', '11/9(月)12:00～11/12(木)12:00', 'http://www.mihoyo.co.jp/information/entry.php?ID=2910')">
+                            <div class="ann-header">
+                                <div class="ann-title">従魔「闇時計･永夜」再登場！</div>
+                                <div class="ann-countdown" id="countdown_1" data-date="11/9(月)12:00～11/12(木)12:00">Ends in: Calculating...</div>
+                            </div>
+                            <div class="ann-img-wrapper">
+                                <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1539_img.png" alt="Banner">
+                            </div>
+                        </div>
                     
-                        <a href="http://www.mihoyo.co.jp/information/entry.php?ID=2909" target="_blank" style="display: block; border-radius: 8px; overflow: hidden; border: 1px solid #2d2d35; transition: transform 0.2s, border-color 0.2s;" onmouseover="this.style.transform='scale(1.01)'; this.style.borderColor='#ffb74d';" onmouseout="this.style.transform='scale(1)'; this.style.borderColor='#2d2d35';">
-                            <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1538_img.png" alt="Announcement Banner" style="width: 100%; display: block;">
-                        </a>
+                        <div class="ann-banner-container" onclick="openAnnModal('新装備「多機能義肢･ケイン戦術」追加！', '11/6(金)12:00～11/13(金)12:00', 'http://www.mihoyo.co.jp/information/entry.php?ID=2909')">
+                            <div class="ann-header">
+                                <div class="ann-title">新装備「多機能義肢･ケイン戦術」追加！</div>
+                                <div class="ann-countdown" id="countdown_2" data-date="11/6(金)12:00～11/13(金)12:00">Ends in: Calculating...</div>
+                            </div>
+                            <div class="ann-img-wrapper">
+                                <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1538_img.png" alt="Banner">
+                            </div>
+                        </div>
                     
-                        <a href="http://www.mihoyo.co.jp/information/entry.php?ID=2908" target="_blank" style="display: block; border-radius: 8px; overflow: hidden; border: 1px solid #2d2d35; transition: transform 0.2s, border-color 0.2s;" onmouseover="this.style.transform='scale(1.01)'; this.style.borderColor='#ffb74d';" onmouseout="this.style.transform='scale(1)'; this.style.borderColor='#2d2d35';">
-                            <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1537_img.png" alt="Announcement Banner" style="width: 100%; display: block;">
-                        </a>
+                        <div class="ann-banner-container" onclick="openAnnModal('今回のUP装備！', '11/6(金)12:00～11/13(金)12:00', 'http://www.mihoyo.co.jp/information/entry.php?ID=2908')">
+                            <div class="ann-header">
+                                <div class="ann-title">今回のUP装備！</div>
+                                <div class="ann-countdown" id="countdown_3" data-date="11/6(金)12:00～11/13(金)12:00">Ends in: Calculating...</div>
+                            </div>
+                            <div class="ann-img-wrapper">
+                                <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1537_img.png" alt="Banner">
+                            </div>
+                        </div>
                     </div>
 
         </div>
