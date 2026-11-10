@@ -1373,10 +1373,52 @@
                 const response = await fetch('storage.json?v=' + Date.now());
                 if (!response.ok) throw new Error('HTTP ' + response.status);
                 const data = await response.json();
+                
                 if (data && typeof data === 'object' && data.game_database) {
-                    // bundle format: { game_database: {...}, meta_registry_v2: [...] }
                     database = data.game_database || {};
                     metaCategories = Array.isArray(data.meta_registry_v2) ? data.meta_registry_v2 : [];
+                    
+                    // --- SHARED IMAGE TABLE RESOLVER ---
+                    if (data.images && typeof data.images === 'object') {
+                        const resolveImg = (val) => {
+                            if (typeof val === 'string' && val.startsWith('@') && data.images[val]) {
+                                return data.images[val];
+                            }
+                            return val;
+                        };
+
+                        // Loop through all database items and replace @keys with actual base64
+                        for (const id in database) {
+                            const item = database[id];
+                            for (const key in item) {
+                                item[key] = resolveImg(item[key]);
+                            }
+                        }
+
+                        // Loop through meta registry and resolve images (avatars, etc)
+                        metaCategories.forEach(cat => {
+                            if (cat.cards) {
+                                cat.cards.forEach(card => {
+                                    if (card.loadout) {
+                                        for (const slot in card.loadout) {
+                                            card.loadout[slot] = resolveImg(card.loadout[slot]);
+                                        }
+                                    }
+                                    if (card.alternatives) {
+                                        for (const slot in card.alternatives) {
+                                            card.alternatives[slot].forEach(alt => {
+                                                alt.mainItem = resolveImg(alt.mainItem);
+                                                if (alt.requiredItems) {
+                                                    alt.requiredItems = alt.requiredItems.map(resolveImg);
+                                                }
+                                            });
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    }
+                    // -----------------------------------
                 } else {
                     // legacy format: the file IS the item database
                     database = data || {};
