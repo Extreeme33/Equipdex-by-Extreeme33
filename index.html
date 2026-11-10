@@ -1059,10 +1059,12 @@
             const starImagesPopup = starCountPopup > 0 ? Array(starCountPopup).fill('<img src="' + activePopupStarSrc + '" style="width:16px; height:16px; object-fit:contain; margin-right:2px; vertical-align:middle;">').join('') : '';
             const displayCrit = (item.critRate || '0').toString().includes('%') ? item.critRate : (item.critRate || '0') + '%';
 
+            // Single element icon per item — reused for item badge and all skill title badges
+            const activeElementIconSrc = item.elementIcon || ELEMENT_ICONS[mainElement] || '';
+
             let mainElementHtml = '';
-            if (mainElement !== 'none') {
-                const resolvedElementSrc = item.elementIcon || ELEMENT_ICONS[mainElement] || '';
-                if (resolvedElementSrc) mainElementHtml = '            <div class="item-element-icon-wrapper" data-tooltip="' + mainElement + '"><img class="item-element-icon-img" src="' + resolvedElementSrc + '"></div>';
+            if (mainElement !== 'none' && activeElementIconSrc) {
+                mainElementHtml = '            <div class="item-element-icon-wrapper" data-tooltip="' + mainElement + '"><img class="item-element-icon-img" src="' + activeElementIconSrc + '"></div>';
             }
 
             const statsConfig = [
@@ -1119,29 +1121,23 @@
 
             if (item.skillTitle1) {
                 let el1 = item.skillElement1 || 'none';
-                let resolvedSkillElSrc1 = item.skilltitleicon1 || item.skilltitleicon || ELEMENT_ICONS[el1] || '';
-                let iconHtml1 = (el1 !== 'none' && resolvedSkillElSrc1) ? '<div class="element-icon-wrapper" data-tooltip="' + el1 + '"><img class="element-icon-img" src="' + resolvedSkillElSrc1 + '"></div>' : '';
-                
-                // Process text and extract the first tag
+                let iconHtml1 = (el1 !== 'none' && activeElementIconSrc) ? '<div class="element-icon-wrapper" data-tooltip="' + el1 + '"><img class="element-icon-img" src="' + activeElementIconSrc + '"></div>' : '';
                 let descHtml1 = processDetailsInHTML(item.skillDesc1 || '', true);
-                
                 htmlContent += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;">' +
                     '<div class="skill-title-container">' +
                         '<div class="skill-title-wrapper">' +
                             '<div class="skill-title" style="color:#ffb74d; font-weight:bold; font-size:15px; margin-bottom:0;">' + item.skillTitle1 + '</div>' + 
                             iconHtml1 + 
                         '</div>' +
-                        extractedTitleTag + // This puts the button on the right
+                        extractedTitleTag +
                     '</div>' +
                     '<div class="skill-desc" style="color:#fff; font-size:14px; line-height:1.4;">' + descHtml1 + '</div>' +
                 '</div>';
             }
             if (item.skillTitle2) {
                 let el2 = item.skillElement2 || 'none';
-                let resolvedSkillElSrc2 = item.skilltitleicon2 || ELEMENT_ICONS[el2] || '';
-                let iconHtml2 = (el2 !== 'none' && resolvedSkillElSrc2) ? '<div class="element-icon-wrapper" data-tooltip="' + el2 + '"><img class="element-icon-img" src="' + resolvedSkillElSrc2 + '"></div>' : '';
+                let iconHtml2 = (el2 !== 'none' && activeElementIconSrc) ? '<div class="element-icon-wrapper" data-tooltip="' + el2 + '"><img class="element-icon-img" src="' + activeElementIconSrc + '"></div>' : '';
                 let descHtml2 = processDetailsInHTML(item.skillDesc2 || '', true);
-                
                 htmlContent += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;">' +
                     '<div class="skill-title-container">' +
                         '<div class="skill-title-wrapper">' +
@@ -1154,10 +1150,8 @@
             }
             if (item.skillTitle3) {
                 let el3 = item.skillElement3 || 'none';
-                let resolvedSkillElSrc3 = item.skilltitleicon3 || ELEMENT_ICONS[el3] || '';
-                let iconHtml3 = (el3 !== 'none' && resolvedSkillElSrc3) ? '<div class="element-icon-wrapper" data-tooltip="' + el3 + '"><img class="element-icon-img" src="' + resolvedSkillElSrc3 + '"></div>' : '';
+                let iconHtml3 = (el3 !== 'none' && activeElementIconSrc) ? '<div class="element-icon-wrapper" data-tooltip="' + el3 + '"><img class="element-icon-img" src="' + activeElementIconSrc + '"></div>' : '';
                 let descHtml3 = processDetailsInHTML(item.skillDesc3 || '', true);
-                
                 htmlContent += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;">' +
                     '<div class="skill-title-container">' +
                         '<div class="skill-title-wrapper">' +
@@ -1170,10 +1164,8 @@
             }
             if (item.skillTitle4) {
                 let el4 = item.skillElement4 || 'none';
-                let resolvedSkillElSrc4 = item.skilltitleicon4 || ELEMENT_ICONS[el4] || '';
-                let iconHtml4 = (el4 !== 'none' && resolvedSkillElSrc4) ? '<div class="element-icon-wrapper" data-tooltip="' + el4 + '"><img class="element-icon-img" src="' + resolvedSkillElSrc4 + '"></div>' : '';
+                let iconHtml4 = (el4 !== 'none' && activeElementIconSrc) ? '<div class="element-icon-wrapper" data-tooltip="' + el4 + '"><img class="element-icon-img" src="' + activeElementIconSrc + '"></div>' : '';
                 let descHtml4 = processDetailsInHTML(item.skillDesc4 || '', true);
-                
                 htmlContent += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;">' +
                     '<div class="skill-title-container">' +
                         '<div class="skill-title-wrapper">' +
@@ -1201,12 +1193,9 @@
             }
 
             if (item.refinedFrom) {
-                // Check if it's the new Array format or the old String format
                 let refinedList = Array.isArray(item.refinedFrom) ? item.refinedFrom : [item.refinedFrom];
-                
-                // 🔥 SORT: Lowest ID first
                 refinedList.sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
-                
+
                 if (refinedList.length > 0) {
                     htmlContent += '<div class="evolution-section" style="margin-top: 18px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px;">';
                     htmlContent += '<div class="evolution-label" style="color: #ffb74d; font-size: 14px; font-weight: bold; margin-bottom: 8px;">Evolution:</div>';
@@ -1214,13 +1203,14 @@
 
                     refinedList.forEach(refId => {
                         const linkedItemData = database[refId] || null;
-                        if (!linkedItemData) return; // Skip if item doesn't exist
+                        if (!linkedItemData) return;
 
                         const relLabel = (parseInt(refId, 10) || 0) > (parseInt(item.id, 10) || 0) ? "Refined into :" : "Refined from :";
                         const refSubCat = linkedItemData.subcategory || "Role";
+                        // Pull the icon from the linked item itself — not the current item
                         const refIconSrc = linkedItemData.categoryIcon || subcategoryIcons["default"];
                         const refStarSrc = linkedItemData.starIcon || GAME_STAR_ICON;
-                        
+
                         const starCountPopup = (linkedItemData.stars || '').replace(/[^⭐]/g, '').length || 1;
                         const evolutionStarImages = starCountPopup > 0 ? Array(starCountPopup).fill('<img src="' + refStarSrc + '" style="width:11px; height:11px; object-fit:contain; margin-right:1px; vertical-align:middle;">').join('') : '';
 
@@ -1228,7 +1218,6 @@
                         let finalElementSrc = linkedItemData.elementIcon;
                         const prevElementVal = linkedItemData.itemElement || 'none';
                         if (!finalElementSrc && prevElementVal !== 'none') finalElementSrc = ELEMENT_ICONS[prevElementVal] || '';
-                        
                         if (finalElementSrc) refElementHtml = '<div class="item-element-icon-wrapper" data-tooltip="' + prevElementVal + '" style="width:16px; height:16px; display:inline-flex; align-items:center;"><img src="' + finalElementSrc + '" style="width:100%; height:100%; object-fit:contain;"></div>';
 
                         htmlContent += `<div class="evolution-card" onclick="openPopup('${refId}')" style="display: inline-flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.04); padding: 8px 14px; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
@@ -1254,13 +1243,11 @@
             }
 
             let mediaButtonsHtml = '';
-            
-            // 🔥 NEW LOGIC: Find the lowest ID in the evolution chain to inherit Kizuna/Skin images
+
             let baseItem = item;
             if (item.refinedFrom) {
                 const refinedList = Array.isArray(item.refinedFrom) ? item.refinedFrom : [item.refinedFrom];
                 if (refinedList.length > 0) {
-                    // Sort lowest to highest and grab the first one
                     const lowestId = [...refinedList].sort((a, b) => parseInt(a, 10) - parseInt(b, 10))[0];
                     if (database[lowestId]) {
                         baseItem = database[lowestId];
@@ -1268,7 +1255,6 @@
                 }
             }
 
-            // Use the baseItem's images (falls back to the current item's images if no refinedFrom exists)
             const finalKizuna1 = item.kizunaImg || baseItem.kizunaImg;
             const finalKizuna2 = item.kizuna2Img || baseItem.kizuna2Img;
             const finalSkin1 = item.skinImg || baseItem.skinImg;
