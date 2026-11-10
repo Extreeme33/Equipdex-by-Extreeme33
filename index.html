@@ -1254,18 +1254,38 @@
             }
 
             let mediaButtonsHtml = '';
-            if (item.kizunaImg || item.kizuna2Img || item.skinImg || item.skin2Img) {
+            
+            // 🔥 NEW LOGIC: Find the lowest ID in the evolution chain to inherit Kizuna/Skin images
+            let baseItem = item;
+            if (item.refinedFrom) {
+                const refinedList = Array.isArray(item.refinedFrom) ? item.refinedFrom : [item.refinedFrom];
+                if (refinedList.length > 0) {
+                    // Sort lowest to highest and grab the first one
+                    const lowestId = [...refinedList].sort((a, b) => parseInt(a, 10) - parseInt(b, 10))[0];
+                    if (database[lowestId]) {
+                        baseItem = database[lowestId];
+                    }
+                }
+            }
+
+            // Use the baseItem's images (falls back to the current item's images if no refinedFrom exists)
+            const finalKizuna1 = item.kizunaImg || baseItem.kizunaImg;
+            const finalKizuna2 = item.kizuna2Img || baseItem.kizuna2Img;
+            const finalSkin1 = item.skinImg || baseItem.skinImg;
+            const finalSkin2 = item.skin2Img || baseItem.skin2Img;
+
+            if (finalKizuna1 || finalKizuna2 || finalSkin1 || finalSkin2) {
                 mediaButtonsHtml += '<div style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px; display: flex; flex-direction: column; gap: 8px;">';
-                if (item.kizunaImg || item.kizuna2Img) {
+                if (finalKizuna1 || finalKizuna2) {
                     mediaButtonsHtml += '    <div style="display: flex; gap: 10px;">';
-                    if (item.kizunaImg) mediaButtonsHtml += '        <button onclick="viewAnimeArtwork(\'' + item.kizunaImg + '\')" style="flex: 1; background: #ab47bc; color: #ffffff; border: none; padding: 10px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; transition: background 0.2s;" onmouseover="this.style.background=\'#ba68c8\'" onmouseout="this.style.background=\'#ab47bc\'">View Kizuna</button>';
-                    if (item.kizuna2Img) mediaButtonsHtml += '        <button onclick="viewAnimeArtwork(\'' + item.kizuna2Img + '\')" style="flex: 1; background: #7b1fa2; color: #ffffff; border: none; padding: 10px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; transition: background 0.2s;" onmouseover="this.style.background=\'#8e24aa\'" onmouseout="this.style.background=\'#7b1fa2\'">View Kizuna 2nd</button>';
+                    if (finalKizuna1) mediaButtonsHtml += '        <button onclick="viewAnimeArtwork(\'' + finalKizuna1 + '\')" style="flex: 1; background: #ab47bc; color: #ffffff; border: none; padding: 10px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; transition: background 0.2s;" onmouseover="this.style.background=\'#ba68c8\'" onmouseout="this.style.background=\'#ab47bc\'">View Kizuna</button>';
+                    if (finalKizuna2) mediaButtonsHtml += '        <button onclick="viewAnimeArtwork(\'' + finalKizuna2 + '\')" style="flex: 1; background: #7b1fa2; color: #ffffff; border: none; padding: 10px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; transition: background 0.2s;" onmouseover="this.style.background=\'#8e24aa\'" onmouseout="this.style.background=\'#7b1fa2\'">View Kizuna 2nd</button>';
                     mediaButtonsHtml += '    </div>';
                 }
-                if (item.skinImg || item.skin2Img) {
+                if (finalSkin1 || finalSkin2) {
                     mediaButtonsHtml += '    <div style="display: flex; gap: 10px;">';
-                    if (item.skinImg) mediaButtonsHtml += '        <button onclick="viewAnimeArtwork(\'' + item.skinImg + '\')" style="flex: 1; background: #ec407a; color: #ffffff; border: none; padding: 10px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; transition: background 0.2s;" onmouseover="this.style.background=\'#f06292\'" onmouseout="this.style.background=\'#ec407a\'">View Skin</button>';
-                    if (item.skin2Img) mediaButtonsHtml += '        <button onclick="viewAnimeArtwork(\'' + item.skin2Img + '\')" style="flex: 1; background: #c2185b; color: #ffffff; border: none; padding: 10px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; transition: background 0.2s;" onmouseover="this.style.background=\'#d81b60\'" onmouseout="this.style.background=\'#c2185b\'">View Skin 2nd</button>';
+                    if (finalSkin1) mediaButtonsHtml += '        <button onclick="viewAnimeArtwork(\'' + finalSkin1 + '\')" style="flex: 1; background: #ec407a; color: #ffffff; border: none; padding: 10px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; transition: background 0.2s;" onmouseover="this.style.background=\'#f06292\'" onmouseout="this.style.background=\'#ec407a\'">View Skin</button>';
+                    if (finalSkin2) mediaButtonsHtml += '        <button onclick="viewAnimeArtwork(\'' + finalSkin2 + '\')" style="flex: 1; background: #c2185b; color: #ffffff; border: none; padding: 10px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; transition: background 0.2s;" onmouseover="this.style.background=\'#d81b60\'" onmouseout="this.style.background=\'#c2185b\'">View Skin 2nd</button>';
                     mediaButtonsHtml += '    </div>';
                 }
                 mediaButtonsHtml += '</div>'; htmlContent += mediaButtonsHtml;
