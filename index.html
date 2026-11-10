@@ -96,7 +96,21 @@
         .skill-title { color: #ffb74d; font-weight: bold; font-size: 15px; margin-bottom: 6px; }
         .skill-desc { color: #ffffff !important; font-size: 14px; line-height: 1.4; font-weight: 500; }
 
-        .skill-title-container { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+        .skill-title-container { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; /* Pushes the tag to the right */
+            gap: 8px; 
+            margin-bottom: 8px; 
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.1); /* Adds the line between title and description */
+        }
+        .skill-title-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+		
         .element-icon-wrapper { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; cursor: help; text-transform: capitalize; }
         .element-icon-img { width: 100%; height: 100%; object-fit: contain; }
 
@@ -172,8 +186,8 @@
         .meta-tab-layout {
             display: flex;
             gap: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
+            max-width: none;
+            margin: 0;
             padding: 20px;
             align-items: stretch;
             min-height: calc(100vh - 120px);
@@ -225,15 +239,17 @@
             flex: 1;
             min-width: 0;
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 20px;
             align-items: start;
         }
-		
+        .meta-viewer-content .meta-loadout-container { margin-bottom: 0 !important; }
+
+        @media (max-width: 1500px) {
+            .meta-viewer-content { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
         @media (max-width: 1100px) {
-            .meta-viewer-content {
-                grid-template-columns: 1fr;
-            }
+            .meta-viewer-content { grid-template-columns: 1fr; }
         }
 		
         /* ===== REPLACEMENT ICON & POPUP STYLES ===== */
@@ -288,6 +304,64 @@
             display: block;
         }
 
+        /* Inline Item styling for the comment box (Copied from Editor) */
+        .inline-comment-item {
+            display: inline-flex;
+            align-items: center;
+            background: #252532;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid #3a3a4c;
+            color: #64b5f6;
+            font-weight: bold;
+            cursor: pointer;
+            user-select: none;
+            margin: 0 2px;
+            vertical-align: middle;
+        }
+        .inline-comment-item img {
+            width: 16px;
+            height: 16px;
+            object-fit: contain;
+            margin-right: 4px;
+            border-radius: 2px;
+            background: #0b2e6b;
+        }
+        .inline-comment-item:hover {
+            background: #3a3a4c;
+            border-color: #64b5f6;
+        }
+
+        /* Force everything inside a comment to center */
+        .rep-comment { 
+            display: block; 
+            width: 100%; 
+            box-sizing: border-box; 
+            text-align: center !important; 
+            font-size: 13px; /* Updated to match editor */
+        }
+        .rep-comment * { text-align: center; }
+        .rep-comment div, .rep-comment p { display: block; margin: 0; }
+        .rep-comment .inline-comment-item { margin: 2px; }
+        
+        /* Update Tooltip container to be wider and centered like the editor */
+        .replacement-tooltip {
+            left: 50% !important;
+            transform: translateX(-50%);
+            right: auto !important;
+            width: max-content !important;
+            max-width: 400px !important;
+        }
+        .replacement-tooltip::before {
+            left: 50% !important;
+            right: auto !important;
+            transform: translateX(-50%) rotate(45deg);
+        }
+        .replacement-tooltip::after {
+            left: -50% !important;
+            width: 200% !important;
+        }
+		
         /* Invisible bridge so mouse doesn't lose hover between icon and tooltip */
         .replacement-tooltip::after {
             content: '';
@@ -374,6 +448,66 @@
             object-fit: contain;
             margin-right: 4px;
         }
+		
+        /* Detail Button */
+        .detail-tag-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(2, 136, 209, 0.15);
+            color: #64b5f6;
+            border: 1px solid #0288d1;
+            padding: 0 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 0 2px;
+            vertical-align: middle;
+            transition: background 0.2s;
+        }
+		
+        .detail-tag-btn {
+            /* ... existing styles ... */
+            color: #ffffff !important; /* Force white text for readability */
+        }
+        .detail-tag-btn:hover {
+            background: rgba(2, 136, 209, 0.3);
+        }
+
+        /* Detail Popup Modal */
+        .detail-popup-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 5000;
+            display: none; align-items: center; justify-content: center;
+        }
+        .detail-popup-overlay.show { display: flex; }
+        .detail-popup-box {
+            background: #1a1a24; border: 2px solid #0288d1; border-radius: 8px;
+            max-width: 650px; /* Increased from 400px */
+            width: 95%; padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8); position: relative;
+        }
+        .detail-popup-title {
+            color: #ffb74d; font-size: 18px; font-weight: bold; margin-bottom: 10px;
+            border-bottom: 1px solid #3a3a4c; padding-bottom: 8px;
+        }
+        .detail-popup-content {
+            color: #e0e0e6; font-size: 14px; line-height: 1.5; max-height: 60vh; 
+            overflow-y: auto; white-space: pre-line;
+            /* Dark Scrollbar Configuration */
+            scrollbar-color: #3a3a4c #121216;
+            scrollbar-width: thin;
+        }
+        /* WebKit Scrollbar for Detail Popup */
+        .detail-popup-content::-webkit-scrollbar { width: 10px; }
+        .detail-popup-content::-webkit-scrollbar-track { background: #121216; border-radius: 4px; }
+        .detail-popup-content::-webkit-scrollbar-thumb { background: #3a3a4c; border-radius: 4px; border: 2px solid #121216; }
+        .detail-popup-content::-webkit-scrollbar-thumb:hover { background: #64b5f6; }
+        .detail-popup-close {
+            position: absolute; top: 10px; right: 15px; font-size: 22px; color: #888; cursor: pointer;
+        }
+        .detail-popup-close:hover { color: #fff; }
     </style>
 <script>window.Neutralino = window.Neutralino || { init(){}, events:{ on(){}, off(){}, dispatch(){} } };</script><style>button[onclick*='openEditor']{display:none !important;}</style></head>
 <body>
@@ -389,7 +523,7 @@
     <div class="main-tab-bar">
         <button class="main-tab-btn active" onclick="switchMainTab('equipdex', this)">Equipdex</button>
         <button class="main-tab-btn" onclick="switchMainTab('metalist', this)">Meta List</button>
-        <button class="main-tab-btn" onclick="switchMainTab('stigmata', this)">Stigmata</button>
+        <button class="main-tab-btn" onclick="switchMainTab('stigmata', this)">Characters</button>
     </div>
 
     <!-- PANEL 1: EQUIPDEX -->
@@ -724,32 +858,48 @@
             let replacementHtml = '';
 
             if (alts.length > 0) {
-                // Build the tooltip content
-                let tooltipContent = '<div class="rep-title">Replacements</div>';
+                // Build the tooltip content (Matches Editor layout)
+                let tooltipContent = `
+                    <div class="rep-title" style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding-bottom: 6px; margin-bottom: 8px; border-bottom: 1px solid #3a3a4c; min-width: 200px;">
+                        <div></div> <!-- Empty left spacer to keep title perfectly centered -->
+                        <span style="text-align: center;">Replacements</span>
+                        <div></div> <!-- Empty right spacer (Edit/Delete removed for public view) -->
+                    </div>
+                `;
                 
-                // Start the flex container for horizontal layout
-                tooltipContent += '<div style="display: flex; flex-direction: row; gap: 12px; align-items: flex-start; justify-content: center;">';
+                // 1. Render the images side-by-side
+                tooltipContent += '<div style="display: flex; flex-direction: row; gap: 12px; align-items: flex-start; justify-content: center; padding-bottom: 8px;">';
 
                 alts.forEach(alt => {
                     const mainItem = database[alt.mainItem];
                     if (!mainItem) return;
 
-                    tooltipContent += `<div class="rep-item-card" style="width: 100px;">`; // Fixed width for each item
-                    
-                    // Clicking the image/name opens the item detail popup
+                    tooltipContent += `<div class="rep-item-card" style="min-width: 90px; max-width: 140px;">`;
                     tooltipContent += `
                         <div style="cursor: pointer; display: flex; flex-direction: column; align-items: center;" onclick="event.stopPropagation(); openPopup('${mainItem.id}');">
                             <img src="${mainItem.img}" class="rep-item-img">
                             <div class="rep-item-name">${mainItem.name}</div>
                         </div>
                     `;
+                    tooltipContent += `</div>`;
+                });
+
+                tooltipContent += '</div>'; // End image row
+
+                // 2. Render the comments centered below the whole row
+                tooltipContent += '<div style="display: flex; flex-direction: column; gap: 8px; border-top: 1px solid #3a3a4c; padding-top: 8px;">';
+                
+                alts.forEach((alt) => {
+                    tooltipContent += '<div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 4px;">';
                     
                     if (alt.comment) {
-                        tooltipContent += `<div class="rep-comment">"${alt.comment}"</div>`;
+                        // Clean leading/trailing spaces so the centered text doesn't get pushed sideways
+                        const cleanComment = String(alt.comment).replace(/^(?:\s|&nbsp;|&#8203;|\u200B|\u00A0|<br\s*\/?>)+|(?:\s|&nbsp;|&#8203;|\u200B|\u00A0|<br\s*\/?>)+$/gi, '');
+                        tooltipContent += `<div class="rep-comment" style="text-align: center; width: 100%;">${cleanComment}</div>`;
                     }
 
                     if (alt.requiredItems && alt.requiredItems.length > 0) {
-                        tooltipContent += `<div class="rep-req-list">`;
+                        tooltipContent += `<div class="rep-req-list" style="justify-content: center; width: 100%;">`;
                         alt.requiredItems.forEach(reqId => {
                             const reqItem = database[reqId];
                             if (reqItem) {
@@ -761,10 +911,10 @@
                         });
                         tooltipContent += `</div>`;
                     }
-                    tooltipContent += `</div>`;
-                });
 
-                // Close the flex container
+                    tooltipContent += '</div>';
+                });
+                
                 tooltipContent += '</div>';
 
                 // Group the icon and tooltip in a container for proper hover handling
@@ -805,6 +955,83 @@
                 // Restore it after a short delay so it works next time you hover
                 setTimeout(() => { container.style.display = ''; }, 500);
             }
+        }
+
+        let extractedTitleTag = '';
+
+        // Helper to convert editor spans into functional buttons safely using DOM
+        function processDetailsInHTML(htmlText, extractFirst = false) {
+            if (!htmlText) return '';
+            
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = htmlText;
+            extractedTitleTag = ''; // Reset global
+
+            const detailTags = tempDiv.querySelectorAll('.detail-tag');
+            let isFirst = true;
+
+            detailTags.forEach(tag => {
+                const title = tag.getAttribute('data-title') || 'Details';
+                const content = tag.getAttribute('data-content') || '';
+                const emoji = tag.getAttribute('data-emoji') || '📖';
+                const color = tag.getAttribute('data-color') || '#0288d1';
+
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'detail-tag-btn';
+                btn.textContent = `${emoji} ${title}`;
+                btn.setAttribute('data-title', title);
+                btn.setAttribute('data-content', content);
+                
+                // Apply custom color (text and border)
+                btn.style.color = '#ffffff'; 
+                btn.style.borderColor = color;
+                
+                // Generate semi-transparent background based on the custom color
+                const r = parseInt(color.slice(1,3), 16);
+                const g = parseInt(color.slice(3,5), 16);
+                const b = parseInt(color.slice(5,7), 16);
+                btn.style.background = `rgba(${r}, ${g}, ${b}, 0.3)`; // 30% opacity background
+
+                // Add hover effect dynamically (make background slightly brighter on hover)
+                btn.onmouseenter = () => { btn.style.background = `rgba(${r}, ${g}, ${b}, 0.5)`; };
+                btn.onmouseleave = () => { btn.style.background = `rgba(${r}, ${g}, ${b}, 0.3)`; };
+				
+                // Add hover effect dynamically
+                btn.onmouseenter = () => { btn.style.background = `rgba(${parseInt(color.slice(1,3), 16)}, ${parseInt(color.slice(3,5), 16)}, ${parseInt(color.slice(5,7), 16)}, 0.3)`; };
+                btn.onmouseleave = () => { btn.style.background = `rgba(${parseInt(color.slice(1,3), 16)}, ${parseInt(color.slice(3,5), 16)}, ${parseInt(color.slice(5,7), 16)}, 0.15)`; };
+
+                // If this is the first tag, and we are told to extract it for the title row
+                if (extractFirst && isFirst) {
+                    extractedTitleTag = btn.outerHTML;
+                    tag.remove(); // Remove it from the description text
+                    isFirst = false;
+                } else {
+                    tag.parentNode.replaceChild(btn, tag);
+                }
+            });
+
+            return tempDiv.innerHTML;
+        }
+
+        // One delegated listener for every detail button (survives re-rendering, works in the title row too)
+        document.addEventListener('click', function(e) {
+            const btn = e.target.closest && e.target.closest('.detail-tag-btn');
+            if (!btn) return;
+            e.preventDefault();
+            e.stopPropagation();
+            showDetailModal(btn.getAttribute('data-title') || 'Details', btn.getAttribute('data-content') || '');
+        }, true);
+
+        function showDetailModal(title, content) {
+            document.getElementById('detailModalTitle').innerHTML = title;
+            document.getElementById('detailModalContent').innerHTML = content;
+            document.getElementById('detailModal').classList.add('show');
+        }
+
+        function closeDetailModal(e) {
+            if(e) e.stopPropagation();
+            document.getElementById('detailModal').classList.remove('show');
         }
 
         function openPopup(id) {
@@ -894,28 +1121,71 @@
                 let el1 = item.skillElement1 || 'none';
                 let resolvedSkillElSrc1 = item.skilltitleicon1 || item.skilltitleicon || ELEMENT_ICONS[el1] || '';
                 let iconHtml1 = (el1 !== 'none' && resolvedSkillElSrc1) ? '<div class="element-icon-wrapper" data-tooltip="' + el1 + '"><img class="element-icon-img" src="' + resolvedSkillElSrc1 + '"></div>' : '';
-                htmlContent += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;"><div class="skill-title-container"><div class="skill-title" style="color:#ffb74d; font-weight:bold; font-size:15px; margin-bottom:0;">' + item.skillTitle1 + '</div>' + iconHtml1 + '</div><div class="skill-desc" style="color:#fff; font-size:14px; line-height:1.4;">' + (item.skillDesc1 || '') + '</div></div>';
+                
+                // Process text and extract the first tag
+                let descHtml1 = processDetailsInHTML(item.skillDesc1 || '', true);
+                
+                htmlContent += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;">' +
+                    '<div class="skill-title-container">' +
+                        '<div class="skill-title-wrapper">' +
+                            '<div class="skill-title" style="color:#ffb74d; font-weight:bold; font-size:15px; margin-bottom:0;">' + item.skillTitle1 + '</div>' + 
+                            iconHtml1 + 
+                        '</div>' +
+                        extractedTitleTag + // This puts the button on the right
+                    '</div>' +
+                    '<div class="skill-desc" style="color:#fff; font-size:14px; line-height:1.4;">' + descHtml1 + '</div>' +
+                '</div>';
             }
             if (item.skillTitle2) {
                 let el2 = item.skillElement2 || 'none';
                 let resolvedSkillElSrc2 = item.skilltitleicon2 || ELEMENT_ICONS[el2] || '';
                 let iconHtml2 = (el2 !== 'none' && resolvedSkillElSrc2) ? '<div class="element-icon-wrapper" data-tooltip="' + el2 + '"><img class="element-icon-img" src="' + resolvedSkillElSrc2 + '"></div>' : '';
-                htmlContent += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;"><div class="skill-title-container"><div class="skill-title" style="color:#ffb74d; font-weight:bold; font-size:15px; margin-bottom:0;">' + item.skillTitle2 + '</div>' + iconHtml2 + '</div><div class="skill-desc" style="color:#fff; font-size:14px; line-height:1.4;">' + (item.skillDesc2 || '') + '</div></div>';
+                let descHtml2 = processDetailsInHTML(item.skillDesc2 || '', true);
+                
+                htmlContent += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;">' +
+                    '<div class="skill-title-container">' +
+                        '<div class="skill-title-wrapper">' +
+                            '<div class="skill-title" style="color:#ffb74d; font-weight:bold; font-size:15px; margin-bottom:0;">' + item.skillTitle2 + '</div>' + 
+                            iconHtml2 + 
+                        '</div>' + extractedTitleTag +
+                    '</div>' +
+                    '<div class="skill-desc" style="color:#fff; font-size:14px; line-height:1.4;">' + descHtml2 + '</div>' +
+                '</div>';
             }
             if (item.skillTitle3) {
                 let el3 = item.skillElement3 || 'none';
                 let resolvedSkillElSrc3 = item.skilltitleicon3 || ELEMENT_ICONS[el3] || '';
                 let iconHtml3 = (el3 !== 'none' && resolvedSkillElSrc3) ? '<div class="element-icon-wrapper" data-tooltip="' + el3 + '"><img class="element-icon-img" src="' + resolvedSkillElSrc3 + '"></div>' : '';
-                htmlContent += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;"><div class="skill-title-container"><div class="skill-title" style="color:#ffb74d; font-weight:bold; font-size:15px; margin-bottom:0;">' + item.skillTitle3 + '</div>' + iconHtml3 + '</div><div class="skill-desc" style="color:#fff; font-size:14px; line-height:1.4;">' + (item.skillDesc3 || '') + '</div></div>';
+                let descHtml3 = processDetailsInHTML(item.skillDesc3 || '', true);
+                
+                htmlContent += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;">' +
+                    '<div class="skill-title-container">' +
+                        '<div class="skill-title-wrapper">' +
+                            '<div class="skill-title" style="color:#ffb74d; font-weight:bold; font-size:15px; margin-bottom:0;">' + item.skillTitle3 + '</div>' + 
+                            iconHtml3 + 
+                        '</div>' + extractedTitleTag +
+                    '</div>' +
+                    '<div class="skill-desc" style="color:#fff; font-size:14px; line-height:1.4;">' + descHtml3 + '</div>' +
+                '</div>';
             }
             if (item.skillTitle4) {
                 let el4 = item.skillElement4 || 'none';
                 let resolvedSkillElSrc4 = item.skilltitleicon4 || ELEMENT_ICONS[el4] || '';
                 let iconHtml4 = (el4 !== 'none' && resolvedSkillElSrc4) ? '<div class="element-icon-wrapper" data-tooltip="' + el4 + '"><img class="element-icon-img" src="' + resolvedSkillElSrc4 + '"></div>' : '';
-                htmlContent += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;"><div class="skill-title-container"><div class="skill-title" style="color:#ffb74d; font-weight:bold; font-size:15px; margin-bottom:0;">' + item.skillTitle4 + '</div>' + iconHtml4 + '</div><div class="skill-desc" style="color:#fff; font-size:14px; line-height:1.4;">' + (item.skillDesc4 || '') + '</div></div>';
+                let descHtml4 = processDetailsInHTML(item.skillDesc4 || '', true);
+                
+                htmlContent += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;">' +
+                    '<div class="skill-title-container">' +
+                        '<div class="skill-title-wrapper">' +
+                            '<div class="skill-title" style="color:#ffb74d; font-weight:bold; font-size:15px; margin-bottom:0;">' + item.skillTitle4 + '</div>' + 
+                            iconHtml4 + 
+                        '</div>' + extractedTitleTag +
+                    '</div>' +
+                    '<div class="skill-desc" style="color:#fff; font-size:14px; line-height:1.4;">' + descHtml4 + '</div>' +
+                '</div>';
             }
             if (item.passiveTitle) {
-                htmlContent += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;"><div class="skill-title-container"><div class="skill-title" style="color:#64b5f6; font-weight:bold; font-size:15px; margin-bottom:0;">[Passive] ' + item.passiveTitle + '</div></div><div class="skill-desc" style="color:#fff; font-size:14px; line-height:1.4;">' + (item.passiveDesc || '') + '</div></div>';
+                htmlContent += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;"><div class="skill-title-container"><div class="skill-title" style="color:#64b5f6; font-weight:bold; font-size:15px; margin-bottom:0;">[Passive] ' + item.passiveTitle + '</div></div><div class="skill-desc" style="color:#fff; font-size:14px; line-height:1.4;">' + processDetailsInHTML(item.passiveDesc || '') + '</div></div>';
             }
             if (item.petAtkTitle) {
                 htmlContent += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;"><div class="skill-title-container"><div class="skill-title" style="color:#ffb74d; font-weight:bold; font-size:15px; margin-bottom:0;">[Attack] ' + item.petAtkTitle + '</div></div><div class="skill-desc" style="color:#fff; font-size:14px; line-height:1.4;">' + (item.petAtkDesc || '') + '</div></div>';
@@ -931,27 +1201,56 @@
             }
 
             if (item.refinedFrom) {
-                const relLabel = (parseInt(item.refinedFrom, 10) || 0) > (parseInt(item.id, 10) || 0) ? "Refined into :" : "Refined from :";
-                const linkedItemData = database[item.refinedFrom] || null;
-                const refSubCat = item.refinedSubcategory || (linkedItemData ? (linkedItemData.subcategory || "Role") : "Role");
-                const refIconSrc = item.refinedCategoryIcon || (linkedItemData ? linkedItemData.categoryIcon : '') || subcategoryIcons["default"];
-                const refStarSrc = item.refinedStarIcon || (linkedItemData ? linkedItemData.starIcon : '') || GAME_STAR_ICON;
-                const starCountPopup = (linkedItemData && linkedItemData.stars || '').replace(/[^⭐]/g, '').length || 1;
-                const evolutionStarImages = starCountPopup > 0 ? Array(starCountPopup).fill('<img src="' + refStarSrc + '" style="width:11px; height:11px; object-fit:contain; margin-right:1px; vertical-align:middle;">').join('') : '';
+                // Check if it's the new Array format or the old String format
+                let refinedList = Array.isArray(item.refinedFrom) ? item.refinedFrom : [item.refinedFrom];
+                
+                // 🔥 SORT: Lowest ID first
+                refinedList.sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
+                
+                if (refinedList.length > 0) {
+                    htmlContent += '<div class="evolution-section" style="margin-top: 18px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px;">';
+                    htmlContent += '<div class="evolution-label" style="color: #ffb74d; font-size: 14px; font-weight: bold; margin-bottom: 8px;">Evolution:</div>';
+                    htmlContent += '<div style="display: flex; flex-wrap: wrap; gap: 10px;">';
 
-                let refElementHtml = '';
-                let finalElementSrc = item.refinedElementIcon;
-                const prevElementVal = linkedItemData ? (linkedItemData.itemElement || 'none') : 'none';
-                if (!finalElementSrc && linkedItemData) {
-                    finalElementSrc = linkedItemData.elementIcon;
-                    if (!finalElementSrc && linkedItemData.itemElement && linkedItemData.itemElement !== 'none') finalElementSrc = ELEMENT_ICONS[linkedItemData.itemElement] || '';
+                    refinedList.forEach(refId => {
+                        const linkedItemData = database[refId] || null;
+                        if (!linkedItemData) return; // Skip if item doesn't exist
+
+                        const relLabel = (parseInt(refId, 10) || 0) > (parseInt(item.id, 10) || 0) ? "Refined into :" : "Refined from :";
+                        const refSubCat = linkedItemData.subcategory || "Role";
+                        const refIconSrc = linkedItemData.categoryIcon || subcategoryIcons["default"];
+                        const refStarSrc = linkedItemData.starIcon || GAME_STAR_ICON;
+                        
+                        const starCountPopup = (linkedItemData.stars || '').replace(/[^⭐]/g, '').length || 1;
+                        const evolutionStarImages = starCountPopup > 0 ? Array(starCountPopup).fill('<img src="' + refStarSrc + '" style="width:11px; height:11px; object-fit:contain; margin-right:1px; vertical-align:middle;">').join('') : '';
+
+                        let refElementHtml = '';
+                        let finalElementSrc = linkedItemData.elementIcon;
+                        const prevElementVal = linkedItemData.itemElement || 'none';
+                        if (!finalElementSrc && prevElementVal !== 'none') finalElementSrc = ELEMENT_ICONS[prevElementVal] || '';
+                        
+                        if (finalElementSrc) refElementHtml = '<div class="item-element-icon-wrapper" data-tooltip="' + prevElementVal + '" style="width:16px; height:16px; display:inline-flex; align-items:center;"><img src="' + finalElementSrc + '" style="width:100%; height:100%; object-fit:contain;"></div>';
+
+                        htmlContent += `<div class="evolution-card" onclick="openPopup('${refId}')" style="display: inline-flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.04); padding: 8px 14px; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
+                            <div style="display: flex; flex-direction: column; gap: 2px;">
+                                <div style="font-size: 10px; color: #ffb74d; font-weight: bold;">${relLabel}</div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <div style="width: 36px; height: 36px; background: #0b2e6b; border-radius: 4px; overflow: hidden; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><img src="${linkedItemData.img}" style="width: 100%; height: 100%; object-fit: contain;"></div>
+                                    <div style="display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 4px;">
+                                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                            <div style="color: #ffffff; font-size: 13px; font-weight: bold; line-height: 1.2;">No.${refId} ${linkedItemData.name}</div>
+                                            <div class="subcategory-icon-wrapper" data-tooltip="${refSubCat}" style="width: 16px; height: 16px;"><img class="subcategory-icon-img" src="${refIconSrc}"></div>
+                                            ${refElementHtml}
+                                        </div>
+                                        <div style="display: flex; align-items: center; line-height: 1;">${evolutionStarImages}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+                    });
+
+                    htmlContent += '</div></div>';
                 }
-                if (finalElementSrc) refElementHtml = '<div class="item-element-icon-wrapper" data-tooltip="' + prevElementVal + '" style="width:16px; height:16px; display:inline-flex; align-items:center;"><img src="' + finalElementSrc + '" style="width:100%; height:100%; object-fit:contain;"></div>';
-
-                const refName = linkedItemData ? linkedItemData.name : "Unknown Item";
-                const refImg = linkedItemData ? linkedItemData.img : item.img;
-
-                htmlContent += '<div class="evolution-section" style="margin-top: 18px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px;"><div class="evolution-label" style="color: #ffb74d; font-size: 14px; font-weight: bold; margin-bottom: 8px;">' + relLabel + '</div><div class="evolution-card" onclick="openPopup(\'' + item.refinedFrom + '\')" style="display: inline-flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.04); padding: 8px 14px; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background=\'rgba(255,255,255,0.1)\'" onmouseout="this.style.background=\'rgba(255,255,255,0.04)\'"><div style="width: 36px; height: 36px; background: #0b2e6b; border-radius: 4px; overflow: hidden; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><img src="' + refImg + '" style="width: 100%; height: 100%; object-fit: contain;"></div><div style="display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 4px;"><div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;"><div style="color: #ffffff; font-size: 13px; font-weight: bold; line-height: 1.2;">No.' + item.refinedFrom + ' ' + refName + '</div><div class="subcategory-icon-wrapper" data-tooltip="' + refSubCat + '" style="width: 16px; height: 16px;"><img class="subcategory-icon-img" src="' + refIconSrc + '"></div>' + refElementHtml + '</div><div style="display: flex; align-items: center; line-height: 1;">' + evolutionStarImages + '</div></div></div></div>';
             }
 
             let mediaButtonsHtml = '';
@@ -1052,6 +1351,15 @@
     <div id="artworkLightbox" onclick="closeAnimeArtwork()" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 10, 15, 0.95); z-index: 2000; align-items: center; justify-content: center; cursor: zoom-out;">
         <span style="position: absolute; top: 20px; right: 25px; color: #fff; font-size: 35px; font-weight: bold; cursor: pointer;">&times;</span>
         <img id="lightboxTargetImage" src="" style="max-width: 90%; max-height: 90%; object-fit: contain; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.1);">
+    </div>
+	
+    <!-- DETAIL POPUP MODAL -->
+    <div class="detail-popup-overlay" id="detailModal" onclick="closeDetailModal(event)">
+        <div class="detail-popup-box" onclick="event.stopPropagation()">
+            <span class="detail-popup-close" onclick="closeDetailModal(event)">&times;</span>
+            <div class="detail-popup-title" id="detailModalTitle">Title</div>
+            <div class="detail-popup-content" id="detailModalContent">Content</div>
+        </div>
     </div>
 <script>
         async function loadNeutralinoDatabase() {
