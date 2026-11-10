@@ -508,6 +508,50 @@
             position: absolute; top: 10px; right: 15px; font-size: 22px; color: #888; cursor: pointer;
         }
         .detail-popup-close:hover { color: #fff; }
+		
+        .ann-banner-container {
+            display: flex;
+            flex-direction: column;
+            background: #1e1e1e;
+            border: 2px solid #2d2d3a;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: border-color 0.2s, transform 0.2s;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+        .ann-banner-container:hover {
+            border-color: #ffb74d;
+            transform: translateY(-2px);
+        }
+        .ann-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: #121216;
+            border-bottom: 1px solid #2d2d3a;
+        }
+        .ann-title {
+            color: #ffb74d;
+            font-weight: bold;
+            font-size: 15px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .ann-countdown {
+            color: #e0e0e6;
+            font-size: 13px;
+            font-weight: bold;
+            flex-shrink: 0;
+            margin-left: 15px;
+        }
+        .ann-img-wrapper img {
+            width: 100%;
+            display: block;
+            object-fit: cover;
+        }
     </style>
 <script>window.Neutralino = window.Neutralino || { init(){}, events:{ on(){}, off(){}, dispatch(){} } };</script><style>button[onclick*='openEditor']{display:none !important;}</style></head>
 <body>
@@ -1372,14 +1416,40 @@
                 
                 if (annContainer && announcements.length > 0) {
                     let html = '';
-                    announcements.forEach(ann => {
+                    announcements.forEach((ann, i) => { // <--- ADDED ', i' HERE
+                        // Escape quotes for HTML attributes
+                        const safeTitle = (ann.title || 'Announcement').replace(/'/g, "\\'");
+                        const safeDate = (ann.date || '').replace(/'/g, "\\'");
+                        
+                        // Display a styled date string if it exists
+                        let countdownHtml = '';
+                        if (ann.date) {
+                            // Create a unique ID for this specific banner's countdown
+                            const countdownId = `countdown_${i}`;
+                            countdownHtml = `<div class="ann-countdown" id="${countdownId}" data-date="${ann.date}">Ends in: Calculating...</div>`;
+                        } else {
+                            countdownHtml = `<div class="ann-countdown" style="color:#666;">No Date Info</div>`;
+                        }
+
+                        // Title fallback if scraper fails
+                        let titleHtml = ann.title ? ann.title : 'Official Announcement';
+
                         html += `
-                            <a href="${ann.link}" target="_blank" style="display: block; border-radius: 8px; overflow: hidden; border: 1px solid #2d2d35; transition: transform 0.2s, border-color 0.2s;" onmouseover="this.style.transform='scale(1.01)'; this.style.borderColor='#ffb74d';" onmouseout="this.style.transform='scale(1)'; this.style.borderColor='#2d2d35';">
-                                <img src="${ann.img}" alt="Announcement Banner" style="width: 100%; display: block;">
-                            </a>
+                            <div class="ann-banner-container" onclick="openAnnModal('${safeTitle}', '${safeDate}', '${ann.link}')">
+                                <div class="ann-header">
+                                    <div class="ann-title">${titleHtml}</div>
+                                    ${countdownHtml}
+                                </div>
+                                <div class="ann-img-wrapper">
+                                    <img src="${ann.img}" alt="Banner">
+                                </div>
+                            </div>
                         `;
                     });
                     annContainer.innerHTML = html;
+					
+                    // START THE TIMERS HERE
+                    startAnnouncementCountdowns();
                 }
             } catch (err) {
                 // If no announcements exist locally yet, keep the "Loading announcements..." text
@@ -1402,6 +1472,98 @@
             });
         }
 
+        function openAnnModal(title, date, link) {
+            document.getElementById('annTitle').innerHTML = title || 'Announcement';
+            document.getElementById('annDate').innerHTML = date ? '期間: ' + date : '';
+            document.getElementById('annLink').href = link;
+            document.getElementById('announcementDetailModal').style.display = 'flex';
+        }
+
+        function closeAnnModal(e) {
+            if (e && e.target !== document.getElementById('announcementDetailModal')) return;
+            document.getElementById('announcementDetailModal').style.display = 'none';
+        }
+		
+        // --- COUNTDOWN LOGIC ---
+        function startAnnouncementCountdowns() {
+            const countdownElements = document.querySelectorAll('.ann-countdown[data-date]');
+            
+            countdownElements.forEach(el => {
+                const dateStr = el.getAttribute('data-date');
+                const endTime = parseJapaneseDate(dateStr);
+                
+                if (!endTime) {
+                    el.textContent = dateStr; // If parsing fails, just show the raw text
+                    return;
+                }
+
+                // Update immediately
+                updateTimer(el, endTime);
+
+                // Update every second
+                setInterval(() => updateTimer(el, endTime), 1000);
+            });
+        }
+
+        function updateTimer(el, endTime) {
+            const now = new Date().getTime();
+            const distance = endTime - now;
+
+            if (distance < 0) {
+                el.innerHTML = "Ended";
+                el.style.color = "#c62828"; // Red
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            let timeStr = "";
+            if (days > 0) timeStr += `${days}d `;
+            timeStr += `${hours}h ${minutes}m ${seconds}s`;
+
+            el.innerHTML = `Ends in: <span style="color: #ffb74d;">${timeStr}</span>`;
+        }
+
+        function parseJapaneseDate(dateStr) {
+            try {
+                // Example string: "11/6(金)12:00～11/22(日)24:00"
+                // Split by the tilde (～ or ~) to get the end date part
+                const parts = dateStr.split(/[～~]/);
+                if (parts.length < 2) return null;
+
+                const endPart = parts[1].trim(); // e.g., "11/22(日)24:00"
+                
+                // Extract Month, Day, Hour, Minute using Regex
+                const match = endPart.match(/(\d{1,2})\/(\d{1,2})[^(]*\([^)]+\)(\d{1,2}):(\d{2})/);
+                if (!match) return null;
+
+                let month = parseInt(match[1]) - 1; // JS months are 0-11
+                let day = parseInt(match[2]);
+                let hour = parseInt(match[3]);
+                let minute = parseInt(match[4]);
+                let year = new Date().getFullYear();
+
+                // Handle "24:00" which is midnight of the next day
+                if (hour === 24) {
+                    hour = 0;
+                    day += 1;
+                }
+
+                // The site uses JST (UTC+9). 
+                // We create the date in UTC, then add 9 hours, then let the browser localize it.
+                let date = new Date(Date.UTC(year, month, day, hour, minute));
+                date.setUTCHours(date.getUTCHours() - 9); // Subtract JST offset
+
+                return date.getTime();
+            } catch (e) {
+                console.error("Date parse error:", e);
+                return null;
+            }
+        }
+		
         
         
         
@@ -1418,6 +1580,16 @@
             <span class="detail-popup-close" onclick="closeDetailModal(event)">&times;</span>
             <div class="detail-popup-title" id="detailModalTitle">Title</div>
             <div class="detail-popup-content" id="detailModalContent">Content</div>
+        </div>
+    </div>
+	
+    <!-- ANNOUNCEMENT DETAIL MODAL -->
+    <div id="announcementDetailModal" class="modal-overlay" onclick="closeAnnModal(event)">
+        <div class="modal-content" style="max-width: 500px;" onclick="event.stopPropagation()">
+            <span class="close-btn" onclick="closeAnnModal()">&times;</span>
+            <h2 id="annTitle" style="color: #ffb74d; margin-top: 0; font-size: 20px; margin-bottom: 10px;">Title</h2>
+            <div id="annDate" style="color: #64b5f6; font-size: 14px; font-weight: bold; margin-bottom: 20px;">Date</div>
+            <a id="annLink" href="#" target="_blank" style="display: block; text-align: center; background: #0288d1; color: #fff; text-decoration: none; padding: 10px; border-radius: 4px; font-weight: bold;">Read Full Announcement ↗</a>
         </div>
     </div>
 <script>
