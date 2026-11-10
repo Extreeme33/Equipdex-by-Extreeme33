@@ -1618,6 +1618,9 @@
     </div>
 <script>
         async function loadNeutralinoDatabase() {
+            // The announcement banners are already baked into the page, so start their countdowns right away
+            // (the local app does this inside its own loader, which is removed from the published page).
+            if (typeof startAnnouncementCountdowns === 'function') startAnnouncementCountdowns();
             try {
                 const response = await fetch('storage.json?v=' + Date.now());
                 if (!response.ok) throw new Error('HTTP ' + response.status);
