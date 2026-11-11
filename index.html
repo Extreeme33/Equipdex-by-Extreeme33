@@ -1969,6 +1969,7 @@
                     database = data.game_database || {};
                     metaCategories = Array.isArray(data.meta_registry_v2) ? data.meta_registry_v2 : [];
                     announcementsData = Array.isArray(data.announcements) ? data.announcements : [];
+                    customBannersData = Array.isArray(data.custom_banners) ? data.custom_banners : [];
                     
                     // --- SHARED IMAGE TABLE RESOLVER ---
                     if (data.images && typeof data.images === 'object') {
@@ -2015,12 +2016,14 @@
                     // legacy format: the file IS the item database
                     database = data || {};
                     metaCategories = [];
+                    customBannersData = [];
                 }
             } catch (err) {
                 console.error("Failed to load storage.json", err);
                 database = {};
                 metaCategories = [];
             }
+            if (typeof renderCustomBanners === 'function') renderCustomBanners();
             updateFilteredItems();
             setupDisplay();
             const metaPanel = document.getElementById('panel-metalist');
