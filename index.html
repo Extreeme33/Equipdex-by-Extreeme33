@@ -15,11 +15,8 @@
         .tab-btn { background: none; border: none; color: #a4b0be; font-size: 13px; font-weight: bold; letter-spacing: 1px; cursor: pointer; padding: 6px 12px; text-transform: uppercase; transition: color 0.2s, border-bottom-color 0.2s; border-bottom: 2px solid transparent; }
         .tab-btn:hover { color: #ffffff; }
         .tab-btn.active { color: #ffffff; border-bottom: 2px solid #ffb74d; }
-        .grid-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; padding: 15px; max-width: 1400px; margin: 0 auto; }
-        @media (max-width: 1200px) { .grid-container { grid-template-columns: repeat(4, 1fr); } }
-        @media (max-width: 950px) { .grid-container { grid-template-columns: repeat(3, 1fr); } }
-        @media (max-width: 700px) { .grid-container { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 450px) { .grid-container { grid-template-columns: 1fr; } }
+        /* Use auto-fill and a fixed min-width (e.g., 250px) so cards don't stretch */
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; padding: 15px; max-width: 1400px; margin: 0 auto; }
 
         .item-card { background: #1e1e1e; border: 1px solid #2d2d2d; border-radius: 6px; display: flex; align-items: center; padding: 8px; cursor: pointer; transition: transform 0.15s, background-color 0.15s, border-color 0.15s; }
         .item-card:hover { transform: translateY(-2px); background-color: #252525; border-color: #444444; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
@@ -576,6 +573,48 @@
         #annContent td, #annContent th { border: 1px solid #3a3a4c; padding: 6px 10px; vertical-align: top; }
         #annContent th { background: #1b1b24; color: #ffb74d; }
 		
+        /* Skill Tab Styles */
+        .skill-tab-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #2d2d3e;
+            padding-bottom: 5px;
+        }
+        .skill-tab-btn {
+            background: transparent;
+            color: #aaa;
+            border: none;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px 4px 0 0;
+            transition: color 0.2s, background 0.2s;
+        }
+        .skill-tab-btn:hover {
+            color: #fff;
+        }
+        .skill-tab-btn.active {
+            color: #ffb74d;
+            background: rgba(255, 183, 77, 0.1);
+            border-bottom: 2px solid #ffb74d;
+            margin-bottom: -2px; /* pull down to overlap the container border */
+        }
+        .skill-tab-content {
+            display: none;
+        }
+        .skill-tab-content.active {
+            display: block;
+        }
+		
+        /* Hide the top border of the first skill inside the tab */
+        .skill-tab-content > .skill-section:first-child {
+            border-top: none !important;
+            padding-top: 0 !important;
+            margin-top: 10px !important;
+        }
     </style>
 <script>window.Neutralino = window.Neutralino || { init(){}, events:{ on(){}, off(){}, dispatch(){} } };</script><style>button[onclick*='openEditor']{display:none !important;}</style></head>
 <body>
@@ -597,15 +636,21 @@
 
     <!-- PANEL 0: ANNOUNCEMENT -->
     <div id="panel-announcement" class="main-panel-content active">
-        <div style="max-width: 800px; margin: 20px auto; padding: 0 15px;">
+        <!-- Centered Flex Container -->
+        <div style="display: flex; justify-content: center; gap: 20px; max-width: 1200px; margin: 20px auto; padding: 0 15px; flex-wrap: wrap;">
             
-            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;">
-                <h2 style="color: #ffb74d; margin: 0; font-weight: bold;">📢 Official Announcements</h2>
-                <a href="https://www.mihoyo.co.jp/" target="_blank" style="color: #64b5f6; text-decoration: none; font-size: 13px; font-weight: bold;">Open Site Directly ↗</a>
-            </div>
+    <!-- PANEL 0: ANNOUNCEMENT -->
+    <div id="panel-announcement" class="main-panel-content active">
+        <!-- Centered Flex Container -->
+        <div style="display: flex; justify-content: center; gap: 20px; max-width: 1200px; margin: 20px auto; padding: 0 15px; align-items: flex-start;">
             
-            <!-- Container for the banners injected by the Editor -->
-            <div id="announcementContainer" style="display: flex; flex-direction: column; gap: 15px;">
+            <!-- Left Column: Official Announcements -->
+            <div style="flex: 2; min-width: 300px; max-width: 800px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;">
+                    <h2 style="color: #ffb74d; margin: 0; font-weight: bold;">📢 Official Announcements</h2>
+                    <a href="https://www.mihoyo.co.jp/" target="_blank" style="color: #64b5f6; text-decoration: none; font-size: 13px; font-weight: bold;">Open Site Directly ↗</a>
+                </div>
+                <div id="announcementContainer" style="display: flex; flex-direction: column; gap: 15px;">
                         <div class="ann-banner-container" onclick="openAnnModal(0)">
                             <div class="ann-header">
                                 <div class="ann-title">【Event】Red Sound</div>
@@ -646,6 +691,16 @@
                             </div>
                         </div>
                     </div>
+            </div>
+
+            <!-- Vertical Divider (Only visible if custom banners exist) -->
+            <div id="customBannerDivider" style="width: 2px; background: #2d2d3e; align-self: stretch; margin: 0 10px; display: none;"></div>
+
+            <!-- Right Column: Custom Banners -->
+            <div id="customBannerPanel" style="flex: 1; min-width: 250px; max-width: 350px; display: none;">
+                <h2 style="color: #ffb74d; margin: 0 0 20px 0; font-weight: bold;">On Going</h2>
+                <div id="customBannerContainer" style="display: flex; flex-direction: column; gap: 15px;"></div>
+            </div>
 
         </div>
     </div>
@@ -1243,11 +1298,13 @@
 
             let htmlContent = '<div class="popup-header"><div class="popup-img"><img src="' + item.img + '"></div><div class="popup-title-area"><div class="popup-title-container"><h2 style="color:#fff;">No.' + item.id + ' ' + item.name + '</h2>' + subCategoryHtml + mainElementHtml + '</div><div class="popup-stars" style="display:flex; align-items:center; margin-top:2px;">' + starImagesPopup + '</div></div></div><div class="disassemble-text" style="color:#aaaaaa; font-weight:bold;">' + dismantleText + '</div><div class="ineffective-text" style="color:#ffa726; font-weight:bold; margin-bottom:15px;">' + stackingText + '</div><div class="stats-table">' + statsRowsHtml + '    <div class="stat-type" style="grid-column: span 2;"><span class="stat-label">Type:</span> <span class="stat-value" style="color:#ffb74d;">' + item.type + '</span></div>' + finalLegendSectionHtml + '</div>';
 
+            // Build Skill 1 & 2 content
+            let skillBaseHtml = '';
             if (item.skillTitle1) {
                 let el1 = item.skillElement1 || 'none';
                 let iconHtml1 = (el1 !== 'none' && activeElementIconSrc) ? '<div class="element-icon-wrapper" data-tooltip="' + el1 + '"><img class="element-icon-img" src="' + activeElementIconSrc + '"></div>' : '';
                 let descHtml1 = processDetailsInHTML(item.skillDesc1 || '', true);
-                htmlContent += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;">' +
+                skillBaseHtml += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;">' +
                     '<div class="skill-title-container">' +
                         '<div class="skill-title-wrapper">' +
                             '<div class="skill-title" style="color:#ffb74d; font-weight:bold; font-size:15px; margin-bottom:0;">' + item.skillTitle1 + '</div>' + 
@@ -1262,7 +1319,7 @@
                 let el2 = item.skillElement2 || 'none';
                 let iconHtml2 = (el2 !== 'none' && activeElementIconSrc) ? '<div class="element-icon-wrapper" data-tooltip="' + el2 + '"><img class="element-icon-img" src="' + activeElementIconSrc + '"></div>' : '';
                 let descHtml2 = processDetailsInHTML(item.skillDesc2 || '', true);
-                htmlContent += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;">' +
+                skillBaseHtml += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;">' +
                     '<div class="skill-title-container">' +
                         '<div class="skill-title-wrapper">' +
                             '<div class="skill-title" style="color:#ffb74d; font-weight:bold; font-size:15px; margin-bottom:0;">' + item.skillTitle2 + '</div>' + 
@@ -1272,11 +1329,14 @@
                     '<div class="skill-desc" style="color:#fff; font-size:14px; line-height:1.4;">' + descHtml2 + '</div>' +
                 '</div>';
             }
+
+            // Build EX Skill 3 & 4 content
+            let skillExHtml = '';
             if (item.skillTitle3) {
                 let el3 = item.skillElement3 || 'none';
                 let iconHtml3 = (el3 !== 'none' && activeElementIconSrc) ? '<div class="element-icon-wrapper" data-tooltip="' + el3 + '"><img class="element-icon-img" src="' + activeElementIconSrc + '"></div>' : '';
                 let descHtml3 = processDetailsInHTML(item.skillDesc3 || '', true);
-                htmlContent += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;">' +
+                skillExHtml += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;">' +
                     '<div class="skill-title-container">' +
                         '<div class="skill-title-wrapper">' +
                             '<div class="skill-title" style="color:#ffb74d; font-weight:bold; font-size:15px; margin-bottom:0;">' + item.skillTitle3 + '</div>' + 
@@ -1290,7 +1350,7 @@
                 let el4 = item.skillElement4 || 'none';
                 let iconHtml4 = (el4 !== 'none' && activeElementIconSrc) ? '<div class="element-icon-wrapper" data-tooltip="' + el4 + '"><img class="element-icon-img" src="' + activeElementIconSrc + '"></div>' : '';
                 let descHtml4 = processDetailsInHTML(item.skillDesc4 || '', true);
-                htmlContent += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;">' +
+                skillExHtml += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;">' +
                     '<div class="skill-title-container">' +
                         '<div class="skill-title-wrapper">' +
                             '<div class="skill-title" style="color:#ffb74d; font-weight:bold; font-size:15px; margin-bottom:0;">' + item.skillTitle4 + '</div>' + 
@@ -1300,8 +1360,20 @@
                     '<div class="skill-desc" style="color:#fff; font-size:14px; line-height:1.4;">' + descHtml4 + '</div>' +
                 '</div>';
             }
-            if (item.passiveTitle) {
-                htmlContent += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;"><div class="skill-title-container"><div class="skill-title" style="color:#64b5f6; font-weight:bold; font-size:15px; margin-bottom:0;">[Passive] ' + item.passiveTitle + '</div></div><div class="skill-desc" style="color:#fff; font-size:14px; line-height:1.4;">' + processDetailsInHTML(item.passiveDesc || '') + '</div></div>';
+
+            // Add tabs ONLY if there are EX Skills (skill 3 or 4)
+            if (skillExHtml !== '') {
+                htmlContent += `
+                    <div class="skill-tab-container">
+                        <button class="skill-tab-btn active" onclick="switchSkillTab(event, 'tab-skill-base')">Skill</button>
+                        <button class="skill-tab-btn" onclick="switchSkillTab(event, 'tab-skill-ex')">EX Skill</button>
+                    </div>
+                    <div id="tab-skill-base" class="skill-tab-content active">${skillBaseHtml}</div>
+                    <div id="tab-skill-ex" class="skill-tab-content">${skillExHtml}</div>
+                `;
+            } else {
+                // If no EX skills, just show the base skills without tabs
+                htmlContent += skillBaseHtml;
             }
             if (item.petAtkTitle) {
                 htmlContent += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;"><div class="skill-title-container"><div class="skill-title" style="color:#ffb74d; font-weight:bold; font-size:15px; margin-bottom:0;">[Attack] ' + item.petAtkTitle + '</div></div><div class="skill-desc" style="color:#fff; font-size:14px; line-height:1.4;">' + (item.petAtkDesc || '') + '</div></div>';
@@ -1456,7 +1528,15 @@
                 metaCategories = JSON.parse(rawMeta) || [];
             } catch (err) { metaCategories = []; }
 
-            // NEW: Load announcements locally to display them right away
+            // Load Custom Banners (NEW)
+            try {
+                let rawCustom = await Neutralino.storage.getData('custom_banners');
+                customBannersData = JSON.parse(rawCustom) || [];
+            } catch (err) { 
+                customBannersData = []; 
+            }
+
+            // Load announcements locally to display them right away
             try {
                 let rawAnn = await Neutralino.storage.getData('scraped_announcements');
                 let announcements = JSON.parse(rawAnn) || [];
@@ -1465,7 +1545,7 @@
                 
                 if (annContainer && announcements.length > 0) {
                     let html = '';
-                    announcements.forEach((ann, i) => { // <--- ADDED ', i' HERE
+                    announcements.forEach((ann, i) => {
                         // Escape quotes for HTML attributes
                         const safeTitle = (ann.title || 'Announcement').replace(/'/g, "\\'");
                         const safeDate = (ann.date || '').replace(/'/g, "\\'");
@@ -1503,6 +1583,9 @@
             } catch (err) {
                 // If no announcements exist locally yet, keep the "Loading announcements..." text
             }
+
+            // Render the custom banners on the right side
+            renderCustomBanners();
 
             updateFilteredItems();
             setupDisplay();
@@ -1689,6 +1772,154 @@
             }
         }
 		
+        function switchSkillTab(evt, tabId) {
+            // Hide all content
+            const tabContents = document.getElementsByClassName("skill-tab-content");
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove("active");
+            }
+            // Remove active class from all buttons
+            const tabButtons = document.getElementsByClassName("skill-tab-btn");
+            for (let i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].classList.remove("active");
+            }
+            // Show the selected tab
+            document.getElementById(tabId).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+
+        let customBannersData = [];
+
+        function renderCustomBanners() {
+            const panel = document.getElementById('customBannerPanel');
+            const divider = document.getElementById('customBannerDivider');
+            const container = document.getElementById('customBannerContainer');
+            if (!panel || !container || !divider) return;
+
+            if (!customBannersData || customBannersData.length === 0) {
+                panel.style.display = 'none';
+                divider.style.display = 'none'; // Hide divider
+                return;
+            }
+
+            panel.style.display = 'block';
+            divider.style.display = 'block'; // Show divider
+            container.innerHTML = '';
+            customBannerTickItems = [];
+
+            customBannersData.forEach((banner, i) => {
+                if (!banner.img) return;
+
+                // Create a wrapper
+                const card = document.createElement('div');
+                card.className = 'ann-banner-container';
+                
+                // Header (Title & Countdown)
+                const header = document.createElement('div');
+                header.className = 'ann-header';
+                
+                const title = document.createElement('div');
+                title.className = 'ann-title';
+                title.textContent = banner.title || 'Event';
+
+                const countdown = document.createElement('div');
+                countdown.className = 'ann-countdown';
+                countdown.id = `custom-countdown-${i}`;
+                
+                header.appendChild(title);
+                header.appendChild(countdown);
+
+                // Image
+                const imgWrapper = document.createElement('div');
+                imgWrapper.className = 'ann-img-wrapper';
+                const img = document.createElement('img');
+                img.src = banner.img;
+                imgWrapper.appendChild(img);
+
+                card.appendChild(header);
+                card.appendChild(imgWrapper);
+                container.appendChild(card);
+
+                // Start logic
+                processCustomBannerTimer(banner, countdown.id);
+            });
+        }
+
+
+        // ---- Banner schedule engine (all maths in JST; shared by editor + index) ----
+        const JST_MS = 9 * 3600000, DAY_MS = 86400000;
+        const bnNum = v => (v === undefined || v === null || String(v).trim() === '') ? null : (parseInt(v, 10) || 0);
+        const jstParts = ms => { const d = new Date(ms + JST_MS); return { y: d.getUTCFullYear(), mo: d.getUTCMonth(), d: d.getUTCDate(), h: d.getUTCHours(), mi: d.getUTCMinutes() }; };
+        const jstToMs = (y, mo, d, h, mi) => Date.UTC(y, mo, d, h, mi, 0, 0) - JST_MS;
+        const lastReset = (ms, h, m) => { const p = jstParts(ms); const t = jstToMs(p.y, p.mo, p.d, h, m); return t > ms ? t - DAY_MS : t; };
+
+        function bnMode(b, p) {
+            if (b[p + 'Mode']) return b[p + 'Mode'];
+            const h = bnNum(b[p + 'Hour']), mi = bnNum(b[p + 'Minute']), d = bnNum(b[p + 'Day']), mo = bnNum(b[p + 'Month']), y = bnNum(b[p + 'Year']);
+            if (h === null && mi === null && d === null && mo === null && y === null) return 'off';
+            return (d > 0 && mo > 0 && y > 0) ? 'exact' : 'relative';
+        }
+
+        // One point in time (start or end) -> timestamp, or 0 when not set
+        function bnPoint(b, p, c) {
+            const mode = bnMode(b, p);
+            if (mode === 'off') return 0;
+            const h = bnNum(b[p + 'Hour']), mi = bnNum(b[p + 'Minute']);
+            const d = bnNum(b[p + 'Day']) || 0, mo = bnNum(b[p + 'Month']) || 0, y = bnNum(b[p + 'Year']) || 0;
+            const th = h !== null ? h : (c.hasReset ? c.rh : 0);
+            const tm = h !== null ? (mi || 0) : (mi !== null ? mi : (c.hasReset ? c.rm : 0));
+            if (mode === 'exact') return (d > 0 && mo > 0 && y > 0) ? jstToMs(y, mo - 1, d, th, tm) : 0;
+            if (h === null && mi === null && !d && !mo && !y) return 0;
+            // relative: counted from the "game day" the banner was set on (the last reset before the anchor)
+            const rp = jstParts(c.hasReset ? lastReset(c.anchor, c.rh, c.rm) : c.anchor);
+            let t = jstToMs(rp.y + y, rp.mo + mo, rp.d + d, th, tm);
+            if (!d && !mo && !y && t <= c.anchor) t += DAY_MS; // only a time of day was given
+            return t;
+        }
+
+        function bnSchedule(b, now) {
+            const rh0 = bnNum(b.resetHour), rm0 = bnNum(b.resetMinute);
+            const hasReset = rh0 !== null || rm0 !== null;
+            const c = { anchor: Number(b.anchor) > 0 ? Number(b.anchor) : now, hasReset, rh: rh0 || 0, rm: rm0 || 0 };
+            let start = bnPoint(b, 'start', c), end = bnPoint(b, 'end', c), rolling = false;
+            if (end === 0 && hasReset) { end = lastReset(now, c.rh, c.rm) + DAY_MS; rolling = true; } // daily countdown
+            const rep = parseInt(b.repeat, 10) || 0;
+            if (rep > 0 && !rolling && end > 0 && now >= end) {
+                const k = Math.floor((now - end) / (rep * DAY_MS)) + 1;
+                if (start > 0) start += k * rep * DAY_MS;
+                end += k * rep * DAY_MS;
+            }
+            let state = 'active';
+            if (start > 0 && now < start) state = 'upcoming';
+            else if (end > 0 && now >= end) state = 'ended';
+            return { state, start, end, rolling };
+        }
+
+        const bnCountdown = ms => { ms = Math.max(0, ms); const d = Math.floor(ms / DAY_MS), h = Math.floor(ms % DAY_MS / 3600000), m = Math.floor(ms % 3600000 / 60000), s = Math.floor(ms % 60000 / 1000); return (d > 0 ? d + 'd ' : '') + h + 'h ' + m + 'm ' + s + 's'; };
+        function bnCountdownHtml(s, now) {
+            const span = ms => '<span style="color: #ffb74d;">' + bnCountdown(ms) + '</span>';
+            if (s.state === 'upcoming') return { html: 'Starts in: ' + span(s.start - now), color: '#e0e0e6' };
+            if (s.state === 'ended') return { html: 'Ended', color: '#c62828' };
+            if (s.end > 0) return { html: 'Ends in: ' + span(s.end - now), color: '#e0e0e6' };
+            return { html: '', color: '#e0e0e6' };
+        }
+
+        let customBannerTickItems = [], customBannerTicker = null;
+        function tickCustomBanners() {
+            const now = Date.now();
+            customBannerTickItems.forEach(it => {
+                const el = document.getElementById(it.elId);
+                if (!el) return;
+                const r = bnCountdownHtml(bnSchedule(it.banner, now), now);
+                el.innerHTML = r.html; el.style.color = r.color; el.style.display = r.html ? '' : 'none';
+            });
+        }
+        function processCustomBannerTimer(banner, elId) {
+            customBannerTickItems.push({ banner: banner, elId: elId });
+            tickCustomBanners();
+            if (!customBannerTicker) customBannerTicker = setInterval(tickCustomBanners, 1000);
+        }
+
         
         
         
