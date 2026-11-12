@@ -547,7 +547,10 @@
         .ann-img-wrapper img {
             width: 100%;
             display: block;
-            object-fit: cover;
+            aspect-ratio: 39 / 10;   /* every banner gets the same height, whatever the source image's shape */
+            height: auto;
+            object-fit: cover;       /* crop to fit instead of stretching */
+            object-position: center;
         }
         
         /* ADD THIS HERE */
@@ -648,41 +651,81 @@
                 <div id="announcementContainer" style="display: flex; flex-direction: column; gap: 15px;">
                         <div class="ann-banner-container" onclick="openAnnModal(0)">
                             <div class="ann-header">
+                                <div class="ann-title">The limited-time skin "Nindi･ Summer End Fish" is back</div>
+                                <div class="ann-countdown" id="countdown_0" data-date="11/13(金)12:00～11/20(金)12:00" data-end="1795143600000">Ends in: Calculating...</div>
+                            </div>
+                            <div class="ann-img-wrapper">
+                                <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1541_img.png" alt="Banner">
+                            </div>
+                        </div>
+                    
+                        <div class="ann-banner-container" onclick="openAnnModal(1)">
+                            <div class="ann-header">
                                 <div class="ann-title">【Event】Red Sound</div>
-                                <div class="ann-countdown" id="countdown_0" data-date="11/6(金)12:00～11/22(日)24:00">Ends in: Calculating...</div>
+                                <div class="ann-countdown" id="countdown_1" data-date="11/6(金)12:00～11/22(日)24:00" data-end="1795359600000">Ends in: Calculating...</div>
                             </div>
                             <div class="ann-img-wrapper">
                                 <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1540_img.png" alt="Banner">
                             </div>
                         </div>
                     
-                        <div class="ann-banner-container" onclick="openAnnModal(1)">
+                        <div class="ann-banner-container" onclick="openAnnModal(2)">
                             <div class="ann-header">
                                 <div class="ann-title">The servant "Dark Clock ･ Eternal Night" reappears ！</div>
-                                <div class="ann-countdown" id="countdown_1" data-date="11/9(月)12:00～11/12(木)12:00">Ends in: Calculating...</div>
+                                <div class="ann-countdown" id="countdown_2" data-date="11/9(月)12:00～11/12(木)12:00" data-end="1794452400000">Ends in: Calculating...</div>
                             </div>
                             <div class="ann-img-wrapper">
                                 <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1539_img.png" alt="Banner">
                             </div>
                         </div>
                     
-                        <div class="ann-banner-container" onclick="openAnnModal(2)">
+                        <div class="ann-banner-container" onclick="openAnnModal(3)">
                             <div class="ann-header">
                                 <div class="ann-title">New equipment "Multifunctional Prosthetic Limb･ Kane Tactics" has been added！</div>
-                                <div class="ann-countdown" id="countdown_2" data-date="11/6(金)12:00～11/13(金)12:00">Ends in: Calculating...</div>
+                                <div class="ann-countdown" id="countdown_3" data-date="11/6(金)12:00～11/13(金)12:00" data-end="1794538800000">Ends in: Calculating...</div>
                             </div>
                             <div class="ann-img-wrapper">
                                 <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1538_img.png" alt="Banner">
                             </div>
                         </div>
                     
-                        <div class="ann-banner-container" onclick="openAnnModal(3)">
+                        <div class="ann-banner-container" onclick="openAnnModal(4)">
                             <div class="ann-header">
                                 <div class="ann-title">This UP equipment！</div>
-                                <div class="ann-countdown" id="countdown_3" data-date="11/6(金)12:00～11/13(金)12:00">Ends in: Calculating...</div>
+                                <div class="ann-countdown" id="countdown_4" data-date="11/6(金)12:00～11/13(金)12:00" data-end="1794538800000">Ends in: Calculating...</div>
                             </div>
                             <div class="ann-img-wrapper">
                                 <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1537_img.png" alt="Banner">
+                            </div>
+                        </div>
+                    
+                        <div class="ann-banner-container" onclick="openAnnModal(5)">
+                            <div class="ann-header">
+                                <div class="ann-title">【Event】Tower of the Heroes</div>
+                                <div class="ann-countdown" id="countdown_5" data-date="10/30(金)12:00～11/22(日)24:00" data-end="1795359600000">Ends in: Calculating...</div>
+                            </div>
+                            <div class="ann-img-wrapper">
+                                <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1535_img.png" alt="Banner">
+                            </div>
+                        </div>
+                    
+                        <div class="ann-banner-container" onclick="openAnnModal(6)">
+                            <div class="ann-header">
+                                <div class="ann-title">Ver 13.1 New Features</div>
+                                <div class="ann-countdown" style="color:#666;">No Date Info</div>
+                            </div>
+                            <div class="ann-img-wrapper">
+                                <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1522_img.png" alt="Banner">
+                            </div>
+                        </div>
+                    
+                        <div class="ann-banner-container" onclick="openAnnModal(7)">
+                            <div class="ann-header">
+                                <div class="ann-title">"Hom's Reward" unlocked！</div>
+                                <div class="ann-countdown" id="countdown_7" data-date="10/9(金)4:00～12/1(火)24:00" data-end="1796137200000">Ends in: Calculating...</div>
+                            </div>
+                            <div class="ann-img-wrapper">
+                                <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1521_img.png" alt="Banner">
                             </div>
                         </div>
                     </div>
@@ -1540,7 +1583,13 @@
                 
                 if (annContainer && announcements.length > 0) {
                     let html = '';
+                    const nowMs = Date.now();
                     announcements.forEach((ann, i) => {
+                        // Official banner whose countdown already reached 0: do not show it
+                        // (i stays the original position so openAnnModal(i) still matches announcementsData)
+                        const endMs = getAnnEndTime(ann);
+                        if (endMs !== null && endMs <= nowMs) return;
+
                         // Escape quotes for HTML attributes
                         const safeTitle = (ann.title || 'Announcement').replace(/'/g, "\\'");
                         const safeDate = (ann.date || '').replace(/'/g, "\\'");
@@ -1550,7 +1599,7 @@
                         if (ann.date) {
                             // Create a unique ID for this specific banner's countdown
                             const countdownId = `countdown_${i}`;
-                            countdownHtml = `<div class="ann-countdown" id="${countdownId}" data-date="${ann.date}">Ends in: Calculating...</div>`;
+                            countdownHtml = `<div class="ann-countdown" id="${countdownId}" data-date="${ann.date}"${Number.isFinite(ann.endAt) ? ` data-end="${ann.endAt}"` : ''}>Ends in: Calculating...</div>`;
                         } else {
                             countdownHtml = `<div class="ann-countdown" style="color:#666;">No Date Info</div>`;
                         }
@@ -1570,7 +1619,7 @@
                             </div>
                         `;
                     });
-                    annContainer.innerHTML = html;
+                    annContainer.innerHTML = html || ANN_EMPTY_HTML;
 					
                     // START THE TIMERS HERE
                     startAnnouncementCountdowns();
@@ -1688,34 +1737,58 @@
         }
 		
         // --- COUNTDOWN LOGIC ---
+        const ANN_EMPTY_HTML = '<p class="ann-empty" style="text-align: center; color: #666; margin-top: 40px;">No active announcements right now.</p>';
+
+        // End time (epoch ms) of an official announcement: the scraped endAt, or the text period as a fallback
+        function getAnnEndTime(ann) {
+            if (ann && Number.isFinite(ann.endAt)) return ann.endAt;
+            return ann && ann.date ? parseJapaneseDate(ann.date) : null;
+        }
+
+        function refreshAnnEmptyState() {
+            const c = document.getElementById('announcementContainer');
+            if (!c) return;
+            const hasBanner = c.querySelector('.ann-banner-container');
+            const empty = c.querySelector('.ann-empty');
+            if (!hasBanner && !empty) c.innerHTML = ANN_EMPTY_HTML;
+            else if (hasBanner && empty) empty.remove();
+        }
+
         function startAnnouncementCountdowns() {
             const countdownElements = document.querySelectorAll('.ann-countdown[data-date]');
             
             countdownElements.forEach(el => {
                 const dateStr = el.getAttribute('data-date');
-                const endTime = parseJapaneseDate(dateStr);
+                const endAttr = parseInt(el.getAttribute('data-end'), 10);
+                const endTime = Number.isFinite(endAttr) ? endAttr : parseJapaneseDate(dateStr);
                 
                 if (!endTime) {
                     el.textContent = dateStr; // If parsing fails, just show the raw text
                     return;
                 }
 
-                // Update immediately
-                updateTimer(el, endTime);
+                // Update immediately; false means the countdown is over and the banner was removed
+                if (updateTimer(el, endTime) === false) return;
 
                 // Update every second
-                setInterval(() => updateTimer(el, endTime), 1000);
+                const timerId = setInterval(() => {
+                    if (updateTimer(el, endTime) === false) clearInterval(timerId);
+                }, 1000);
             });
         }
 
         function updateTimer(el, endTime) {
+            if (!el.isConnected) return false;   // banner list was re-rendered, stop this old timer
+
             const now = new Date().getTime();
             const distance = endTime - now;
 
-            if (distance < 0) {
-                el.innerHTML = "Ended";
-                el.style.color = "#c62828"; // Red
-                return;
+            // Countdown reached 0: take the banner off the page
+            if (distance <= 0) {
+                const card = el.closest('.ann-banner-container');
+                if (card) card.remove(); else el.remove();
+                refreshAnnEmptyState();
+                return false;
             }
 
             const days = Math.floor(distance / (1000 * 60 * 60 * 24));
@@ -1728,6 +1801,7 @@
             timeStr += `${hours}h ${minutes}m ${seconds}s`;
 
             el.innerHTML = `Ends in: <span style="color: #ffb74d;">${timeStr}</span>`;
+            return true;
         }
 
         function parseJapaneseDate(dateStr) {
