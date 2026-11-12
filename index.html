@@ -669,16 +669,6 @@
                             </div>
                         </div>
                     
-                        <div class="ann-banner-container" onclick="openAnnModal(2)">
-                            <div class="ann-header">
-                                <div class="ann-title">The servant "Dark Clock ･ Eternal Night" reappears ！</div>
-                                <div class="ann-countdown" id="countdown_2" data-date="11/9(月)12:00～11/12(木)12:00" data-end="1794452400000">Ends in: Calculating...</div>
-                            </div>
-                            <div class="ann-img-wrapper">
-                                <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1539_img.png" alt="Banner">
-                            </div>
-                        </div>
-                    
                         <div class="ann-banner-container" onclick="openAnnModal(3)">
                             <div class="ann-header">
                                 <div class="ann-title">New equipment "Multifunctional Prosthetic Limb･ Kane Tactics" has been added！</div>
@@ -1138,7 +1128,7 @@
                 replacementHtml = `
                     <div class="replacement-container">
                         <div class="replacement-icon-btn">&#x21bb;</div>
-                        <div class="replacement-tooltip">
+                        <div class="replacement-tooltip" onclick="handleReplacementTooltipClick(event)">
                             ${tooltipContent}
                         </div>
                     </div>
@@ -1161,6 +1151,16 @@
 
             html += `</div>`;
             return html;
+        }
+
+        // The tooltip lives inside the item slot, whose own click opens that slot's item. Clicks inside the tooltip
+        // must stay inside it, otherwise the slot item pops up (on top of any mentioned item that was just opened).
+        function handleReplacementTooltipClick(event) {
+            event.stopPropagation();
+            const chip = event.target.closest ? event.target.closest('.inline-comment-item') : null;
+            if (chip && !chip.getAttribute('onclick') && chip.getAttribute('data-id')) {
+                openPopup(chip.getAttribute('data-id'));   // mention chips saved without their own click handler
+            }
         }
 
         function hideTooltip(event) {
