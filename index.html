@@ -236,18 +236,14 @@
             flex: 1;
             min-width: 0;
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
+            /* Cards keep their full-screen size (3 fit in a maximised window); a narrower window gets fewer
+               columns instead of stretching a card across the whole area */
+            grid-template-columns: repeat(auto-fill, minmax(min(440px, 100%), 1fr));
             gap: 20px;
             align-items: start;
         }
+        .meta-viewer-content > * { max-width: 530px; width: 100%; }   /* a lone card never stretches past its full-screen size */
         .meta-viewer-content .meta-loadout-container { margin-bottom: 0 !important; }
-
-        @media (max-width: 1500px) {
-            .meta-viewer-content { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        }
-        @media (max-width: 1100px) {
-            .meta-viewer-content { grid-template-columns: 1fr; }
-        }
 		
         /* ===== REPLACEMENT ICON & POPUP STYLES ===== */
         .replacement-container {
@@ -553,13 +549,33 @@
             object-position: center;
         }
         
-        /* ADD THIS HERE */
         #annContent img {
             max-width: 100%;
             height: auto;
             vertical-align: middle;
             margin: 4px 0;
+            zoom: 0.9;               /* announcement images/icons are 10% smaller (text size unchanged) */
         }
+
+        /* Announcement images that are equipdex items become clickable item cards */
+        .ann-item-card {
+            display: inline-flex; align-items: center; gap: 10px;
+            background: #1b1b24; border: 1px solid #3a3a4c; border-radius: 8px;
+            padding: 8px 14px 8px 8px; margin: 4px 6px 4px 0;
+            cursor: pointer; vertical-align: middle; max-width: 100%; box-sizing: border-box;
+            transition: background 0.15s, border-color 0.15s;
+        }
+        .ann-item-card:hover { background: #252532; border-color: #64b5f6; }
+        .ann-item-card .popup-header { margin: 0; align-items: center; gap: 12px; }
+        .ann-item-card .popup-img { width: 68px; height: 68px; flex: 0 0 68px; }   /* popup image (75px) -10% */
+        #annContent .ann-item-card img { zoom: 1; margin: 0; max-width: none; }
+        #annContent .ann-item-card .popup-img img { width: 100%; height: 100%; }
+        #annContent .ann-item-card h2 { font-size: 15px; margin: 0 !important; color: #fff; }
+        .ann-item-list { display: flex; flex-direction: column; align-items: flex-start; margin: 10px 0; }
+        #annContent tr.ann-item-row td { border-left: none; border-right: none; }
+
+        /* The item popup can be opened from inside an announcement, so it must sit above the announcement popup */
+        #weaponModal { z-index: 1100; }
         #annContent hr {
             border: 0;
             border-top: 1px dashed #3a3a4c;
@@ -1687,6 +1703,123 @@
         let annCurrentIndex = -1;
         let annShowOriginal = false;
 
+        // ---- Announcement images that match an equipdex item -> clickable item cards ----
+        let annImgIndexCache = null;
+
+        function annNormImg(u) {
+            u = String(u || '').trim();
+            if (!u || /^data:/i.test(u)) return '';
+            u = u.replace(/^[a-z][a-z0-9+.-]*:\/\//i, '').replace(/^\/\//, '').split('#')[0].split('?')[0];
+            try { u = decodeURIComponent(u); } catch (e) {}
+            return u.toLowerCase();
+        }
+        function annImgTail(n) { return n.split('/').slice(-2).join('/'); }     // "png/21041.png"
+
+        // item popup image (item.img) -> item id; exact link first (http/https and query ignored), then the last two path parts
+        function getAnnImgIndex() {
+            const keys = Object.keys(database || {});
+            if (annImgIndexCache && annImgIndexCache.db === database && annImgIndexCache.size === keys.length) return annImgIndexCache;
+            const full = new Map(), tail = new Map(), ambiguous = new Set();
+            keys.forEach(id => {
+                const item = database[id];
+                const n = item && typeof item.img === 'string' ? annNormImg(item.img) : '';
+                if (!n) return;
+                if (!full.has(n)) full.set(n, id);
+                const t = annImgTail(n);
+                if (tail.has(t) && tail.get(t) !== id) ambiguous.add(t); else tail.set(t, id);
+            });
+            ambiguous.forEach(t => tail.delete(t));
+            annImgIndexCache = { db: database, size: keys.length, full: full, tail: tail };
+            return annImgIndexCache;
+        }
+
+        function annMatchItemId(src) {
+            const n = annNormImg(src);
+            if (!n) return null;
+            const idx = getAnnImgIndex();
+            return idx.full.get(n) || (n.indexOf('/') !== -1 ? idx.tail.get(annImgTail(n)) : null) || null;
+        }
+
+        // Same header the item popup shows: image, "No.id Name", category + element icons, stars
+        function buildAnnItemCard(id) {
+            const item = database[id];
+            const mainElement = (item.itemElement || 'none').toLowerCase().trim();
+            const subCat = item.subcategory || 'Role';
+            const iconSrc = item.categoryIcon || (typeof subcategoryIcons !== 'undefined' ? subcategoryIcons['default'] : '');
+            const elIconSrc = item.elementIcon || (typeof ELEMENT_ICONS !== 'undefined' ? ELEMENT_ICONS[mainElement] : '') || '';
+            const starCount = (item.stars || '').replace(/[^⭐]/g, '').length || 0;
+            const starSrc = item.starIcon || (typeof GAME_STAR_ICON !== 'undefined' ? GAME_STAR_ICON : '');
+
+            let icons = '';
+            if (subCat && String(subCat).trim().toLowerCase() !== 'none' && iconSrc && !String(iconSrc).toLowerCase().includes('none')) {
+                icons += '<div class="subcategory-icon-wrapper" data-tooltip="' + escapeAnnAttr(subCat) + '"><img class="subcategory-icon-img" src="' + escapeAnnAttr(iconSrc) + '"></div>';
+            }
+            if (mainElement !== 'none' && elIconSrc) {
+                icons += '<div class="item-element-icon-wrapper" data-tooltip="' + escapeAnnAttr(mainElement) + '"><img class="item-element-icon-img" src="' + escapeAnnAttr(elIconSrc) + '"></div>';
+            }
+            const stars = (starCount > 0 && starSrc)
+                ? Array(starCount).fill('<img src="' + escapeAnnAttr(starSrc) + '" style="width:16px; height:16px; object-fit:contain; margin-right:2px;">').join('') : '';
+
+            const card = document.createElement('div');
+            card.className = 'ann-item-card';
+            card.setAttribute('data-item-id', id);
+            card.title = 'Click to see item details';
+            card.innerHTML =
+                '<div class="popup-header"><div class="popup-img"><img src="' + escapeAnnAttr(item.img) + '"></div>' +
+                '<div class="popup-title-area"><div class="popup-title-container"><h2>No.' + escapeAnnText(item.id) + ' ' + escapeAnnText(item.name) + '</h2>' + icons + '</div>' +
+                (stars ? '<div class="popup-stars" style="display:flex; align-items:center; margin-top:2px;">' + stars + '</div>' : '') +
+                '</div></div>';
+            card.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); openPopup(id); });
+            return card;
+        }
+        function escapeAnnText(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+        function escapeAnnAttr(s) { return escapeAnnText(s).replace(/"/g, '&quot;'); }
+
+        // Replace every announcement image that is an equipdex item with its item card.
+        // Inside a table the image cell becomes the card and the neighbouring short name cell is dropped;
+        // a table made only of such rows turns into a plain list of cards.
+        function convertAnnItemImages(root) {
+            if (!root || typeof database !== 'object' || !database || !Object.keys(database).length) return;
+            const hits = [];
+            root.querySelectorAll('img').forEach(img => {
+                const id = annMatchItemId(img.getAttribute('src'));
+                if (id && database[id]) hits.push({ img: img, id: id });
+            });
+            const touchedTables = new Set();
+
+            hits.forEach(h => {
+                const card = buildAnnItemCard(h.id);
+                let target = h.img;
+                const p = target.parentElement;
+                if (p && p !== root && p.tagName === 'A' && p.childNodes.length === 1) target = p;   // <a><img></a>
+                target.replaceWith(card);
+
+                const td = card.closest('td');
+                const tr = td ? td.parentElement : null;
+                if (!td || !tr || !root.contains(tr)) return;
+
+                const cellCount = tr.children.length;
+                Array.from(tr.children).forEach(cell => {
+                    if (cell === td || cell.tagName !== 'TD') return;
+                    const shortText = (cell.textContent || '').trim().length <= 80;
+                    if (!cell.querySelector('img, .ann-item-card') && shortText) cell.remove();   // the name next to the image
+                });
+                if (tr.children.length === 1 && cellCount > 1) td.colSpan = cellCount;
+                tr.classList.add('ann-item-row');
+                const table = tr.closest('table');
+                if (table) touchedTables.add(table);
+            });
+
+            touchedTables.forEach(table => {
+                const rows = Array.from(table.rows);
+                if (!rows.length || !rows.every(r => r.classList.contains('ann-item-row'))) return;
+                const list = document.createElement('div');
+                list.className = 'ann-item-list';
+                rows.forEach(r => r.querySelectorAll('.ann-item-card').forEach(c => list.appendChild(c)));
+                table.replaceWith(list);
+            });
+        }
+
         function renderAnnModal() {
             const ann = announcementsData[annCurrentIndex];
             const contentEl = document.getElementById('annContent');
@@ -1713,6 +1846,7 @@
             const bodyHtml = (useEn && ann.contentHtmlEn) ? ann.contentHtmlEn : ann.contentHtml;
             if (bodyHtml && bodyHtml.trim() !== '') {
                 contentEl.innerHTML = sanitizeAnnHtml(bodyHtml);
+                try { convertAnnItemImages(contentEl); } catch (err) { console.warn('Item card conversion failed:', err); }
             } else {
                 contentEl.innerHTML = '<em style="color:#666;">No detailed text could be extracted for this announcement.</em>';
             }
@@ -2010,14 +2144,14 @@
 	
     <!-- ANNOUNCEMENT DETAIL MODAL -->
     <div id="announcementDetailModal" class="modal-overlay" onclick="closeAnnModal(event)">
-        <div class="modal-content" style="max-width: 800px; width: 90%;" onclick="event.stopPropagation()">
+        <div class="modal-content" style="max-width: 1150px; width: 92%; max-height: 92vh;" onclick="event.stopPropagation()">
             <span class="close-btn" onclick="closeAnnModal()">&times;</span>
             <h2 id="annTitle" style="color: #ffb74d; margin-top: 0; font-size: 22px; margin-bottom: 10px;">Title</h2>
             <button id="annLangBtn" onclick="toggleAnnLang()" style="display:none; background:#2a2a38; color:#e0e0e6; border:1px solid #3a3a4c; border-radius:4px; padding:4px 10px; font-size:12px; cursor:pointer; margin-bottom:10px;">Show original (日本語)</button>
             <div id="annDate" style="color: #64b5f6; font-size: 14px; font-weight: bold; margin-bottom: 15px;">Date</div>
             
             <!-- Translated Content Area -->
-            <div id="annContent" style="color: #e0e0e6; font-size: 14px; line-height: 1.6; max-height: 50vh; overflow-y: auto; padding-right: 10px; margin-bottom: 20px; white-space: normal; background: #121216; padding: 15px; border-radius: 6px; border: 1px solid #3a3a4c;">
+            <div id="annContent" style="color: #e0e0e6; font-size: 14px; line-height: 1.6; max-height: 62vh; overflow-y: auto; padding-right: 10px; margin-bottom: 20px; white-space: normal; background: #121216; padding: 15px; border-radius: 6px; border: 1px solid #3a3a4c;">
                 Loading translation...
             </div>
 
