@@ -558,6 +558,9 @@
         }
 
         /* Announcement images that are equipdex items become clickable item cards */
+        .ann-banner-container.bn-closed .ann-img-wrapper img { filter: grayscale(0.7) brightness(0.65); }
+        .characters-wrap { max-width: 1280px; margin: 0 auto; padding: 24px 20px 60px; }
+        .characters-wrap img { max-width: 100%; height: auto; }
         .ann-item-card {
             display: inline-flex; align-items: center; gap: 10px;
             background: #1b1b24; border: 1px solid #3a3a4c; border-radius: 8px;
@@ -667,48 +670,48 @@
                 <div id="announcementContainer" style="display: flex; flex-direction: column; gap: 15px;">
                         <div class="ann-banner-container" onclick="openAnnModal(0)">
                             <div class="ann-header">
+                                <div class="ann-title">【Event】Entering the paradise</div>
+                                <div class="ann-countdown" id="countdown_0" data-date="11/13(金)12:00～11/22(日)24:00" data-end="1795359600000" data-start="1794538800000">Calculating...</div>
+                            </div>
+                            <div class="ann-img-wrapper">
+                                <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1543_img.png" alt="Banner">
+                            </div>
+                        </div>
+                    
+                        <div class="ann-banner-container" onclick="openAnnModal(1)">
+                            <div class="ann-header">
+                                <div class="ann-title">The servant "Ruvisa" reappears！</div>
+                                <div class="ann-countdown" id="countdown_1" data-date="11/16(月)12:00～11/19(木)12:00" data-end="1795057200000" data-start="1794798000000">Calculating...</div>
+                            </div>
+                            <div class="ann-img-wrapper">
+                                <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1542_img.png" alt="Banner">
+                            </div>
+                        </div>
+                    
+                        <div class="ann-banner-container" onclick="openAnnModal(2)">
+                            <div class="ann-header">
                                 <div class="ann-title">The limited-time skin "Nindi･ Summer End Fish" is back</div>
-                                <div class="ann-countdown" id="countdown_0" data-date="11/13(金)12:00～11/20(金)12:00" data-end="1795143600000">Ends in: Calculating...</div>
+                                <div class="ann-countdown" id="countdown_2" data-date="11/13(金)12:00～11/20(金)12:00" data-end="1795143600000" data-start="1794538800000">Calculating...</div>
                             </div>
                             <div class="ann-img-wrapper">
                                 <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1541_img.png" alt="Banner">
                             </div>
                         </div>
                     
-                        <div class="ann-banner-container" onclick="openAnnModal(1)">
+                        <div class="ann-banner-container" onclick="openAnnModal(3)">
                             <div class="ann-header">
                                 <div class="ann-title">【Event】Red Sound</div>
-                                <div class="ann-countdown" id="countdown_1" data-date="11/6(金)12:00～11/22(日)24:00" data-end="1795359600000">Ends in: Calculating...</div>
+                                <div class="ann-countdown" id="countdown_3" data-date="11/6(金)12:00～11/22(日)24:00" data-end="1795359600000" data-start="1793934000000">Calculating...</div>
                             </div>
                             <div class="ann-img-wrapper">
                                 <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1540_img.png" alt="Banner">
                             </div>
                         </div>
                     
-                        <div class="ann-banner-container" onclick="openAnnModal(3)">
-                            <div class="ann-header">
-                                <div class="ann-title">New equipment "Multifunctional Prosthetic Limb･ Kane Tactics" has been added！</div>
-                                <div class="ann-countdown" id="countdown_3" data-date="11/6(金)12:00～11/13(金)12:00" data-end="1794538800000">Ends in: Calculating...</div>
-                            </div>
-                            <div class="ann-img-wrapper">
-                                <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1538_img.png" alt="Banner">
-                            </div>
-                        </div>
-                    
-                        <div class="ann-banner-container" onclick="openAnnModal(4)">
-                            <div class="ann-header">
-                                <div class="ann-title">This UP equipment！</div>
-                                <div class="ann-countdown" id="countdown_4" data-date="11/6(金)12:00～11/13(金)12:00" data-end="1794538800000">Ends in: Calculating...</div>
-                            </div>
-                            <div class="ann-img-wrapper">
-                                <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1537_img.png" alt="Banner">
-                            </div>
-                        </div>
-                    
                         <div class="ann-banner-container" onclick="openAnnModal(5)">
                             <div class="ann-header">
                                 <div class="ann-title">【Event】Tower of the Heroes</div>
-                                <div class="ann-countdown" id="countdown_5" data-date="10/30(金)12:00～11/22(日)24:00" data-end="1795359600000">Ends in: Calculating...</div>
+                                <div class="ann-countdown" id="countdown_5" data-date="10/30(金)12:00～11/22(日)24:00" data-end="1795359600000" data-start="1793329200000">Calculating...</div>
                             </div>
                             <div class="ann-img-wrapper">
                                 <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1535_img.png" alt="Banner">
@@ -728,7 +731,7 @@
                         <div class="ann-banner-container" onclick="openAnnModal(7)">
                             <div class="ann-header">
                                 <div class="ann-title">"Hom's Reward" unlocked！</div>
-                                <div class="ann-countdown" id="countdown_7" data-date="10/9(金)4:00～12/1(火)24:00" data-end="1796137200000">Ends in: Calculating...</div>
+                                <div class="ann-countdown" id="countdown_7" data-date="10/9(金)4:00～12/1(火)24:00" data-end="1796137200000" data-start="1791486000000">Calculating...</div>
                             </div>
                             <div class="ann-img-wrapper">
                                 <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1521_img.png" alt="Banner">
@@ -790,7 +793,7 @@
 
     <!-- PANEL 3: STIGMATA -->
     <div id="panel-stigmata" class="main-panel-content">
-        <p style="text-align: center; color: #888; padding-top: 60px; font-size: 15px;">Stigmata Feature Coming Soon!</p>
+        <div id="charactersContainer" class="characters-wrap"></div>
     </div>
 
     <div class="modal-overlay" id="weaponModal">
@@ -1590,6 +1593,10 @@
                 customBannersData = []; 
             }
 
+            // Load the scraped Characters section
+            try { charactersData = JSON.parse(await Neutralino.storage.getData('characters_content')) || null; }
+            catch (err) { charactersData = null; }
+
             // Load announcements locally to display them right away
             try {
                 let rawAnn = await Neutralino.storage.getData('scraped_announcements');
@@ -1615,7 +1622,7 @@
                         if (ann.date) {
                             // Create a unique ID for this specific banner's countdown
                             const countdownId = `countdown_${i}`;
-                            countdownHtml = `<div class="ann-countdown" id="${countdownId}" data-date="${ann.date}"${Number.isFinite(ann.endAt) ? ` data-end="${ann.endAt}"` : ''}>Ends in: Calculating...</div>`;
+                            countdownHtml = `<div class="ann-countdown" id="${countdownId}" data-date="${ann.date}"${Number.isFinite(ann.endAt) ? ` data-end="${ann.endAt}"` : ''}${Number.isFinite(ann.startAt) ? ` data-start="${ann.startAt}"` : ''}>Calculating...</div>`;
                         } else {
                             countdownHtml = `<div class="ann-countdown" style="color:#666;">No Date Info</div>`;
                         }
@@ -1646,6 +1653,7 @@
 
             // Render the custom banners on the right side
             renderCustomBanners();
+            renderCharacters();
 
             updateFilteredItems();
             setupDisplay();
@@ -1669,6 +1677,46 @@
         let announcementsData = [];
 
         // The article HTML comes from another website, so clean it before it goes into the popup
+        // ---- Characters tab: shows the "chara-content" HTML scraped in the editor ----
+        let charactersData = null;
+        function sanitizeCharactersHtml(html) {
+            const doc = new DOMParser().parseFromString('<div id="r">' + (html || '') + '</div>', 'text/html');
+            const root = doc.getElementById('r');
+            root.querySelectorAll('script, iframe, object, embed, link, meta, base, form, style').forEach(n => n.remove());
+            root.querySelectorAll('*').forEach(el => [...el.attributes].forEach(a => {
+                const n = a.name.toLowerCase(), v = a.value.trim().toLowerCase();
+                if (n.startsWith('on') || ((n === 'href' || n === 'src') && v.startsWith('javascript:'))) el.removeAttribute(a.name);
+            }));
+            root.querySelectorAll('a[href]').forEach(a => { a.target = '_blank'; a.rel = 'noopener noreferrer'; });
+            return root.innerHTML;
+        }
+        function renderCharacters() {
+            const box = document.getElementById('charactersContainer');
+            if (!box) return;
+            if (!charactersData || !charactersData.html) {
+                const old = document.getElementById('charactersStyle'); if (old) old.textContent = '';
+                box.innerHTML = '<p style="text-align:center; color:#888; padding-top:60px; font-size:15px;">No character data yet.</p>';
+                return;
+            }
+            // The art is drawn by the site's CSS: add the copied rules, limited to this section
+            let st = document.getElementById('charactersStyle');
+            if (!st) { st = document.createElement('style'); st.id = 'charactersStyle'; document.head.appendChild(st); }
+            st.textContent = scopeCharactersCss(charactersData.css, '#charactersContainer');
+            box.innerHTML = sanitizeCharactersHtml(charactersData.html);
+        }
+        function scopeCharactersCss(css, scope) {
+            if (!css || !('CSSStyleSheet' in self)) return '';
+            const sheet = new CSSStyleSheet();
+            try { sheet.replaceSync(String(css).replace(/<\/?style[^>]*>/gi, '').replace(/@import[^;]*;/gi, '')); } catch (e) { return ''; }
+            const walk = rules => [...rules].map(r => {
+                if (r.type === CSSRule.STYLE_RULE) return r.selectorText.split(',').map(x => scope + ' ' + x.trim()).join(', ') + ' { ' + r.style.cssText + ' }';
+                if (r.type === CSSRule.MEDIA_RULE) return '@media ' + r.conditionText + ' { ' + walk(r.cssRules) + ' }';
+                if (r.type === CSSRule.KEYFRAMES_RULE) return r.cssText;
+                return '';
+            }).join('\n');
+            return walk(sheet.cssRules);
+        }
+
         function sanitizeAnnHtml(html) {
             const BASE = 'https://www.mihoyo.co.jp/';
             const doc = new DOMParser().parseFromString('<div id="r">' + html + '</div>', 'text/html');
@@ -1895,6 +1943,8 @@
                 const dateStr = el.getAttribute('data-date');
                 const endAttr = parseInt(el.getAttribute('data-end'), 10);
                 const endTime = Number.isFinite(endAttr) ? endAttr : parseJapaneseDate(dateStr);
+                const startAttr = parseInt(el.getAttribute('data-start'), 10);
+                const startTime = Number.isFinite(startAttr) ? startAttr : parseJapaneseStart(dateStr);
                 
                 if (!endTime) {
                     el.textContent = dateStr; // If parsing fails, just show the raw text
@@ -1902,20 +1952,21 @@
                 }
 
                 // Update immediately; false means the countdown is over and the banner was removed
-                if (updateTimer(el, endTime) === false) return;
+                if (updateTimer(el, endTime, startTime) === false) return;
 
                 // Update every second
                 const timerId = setInterval(() => {
-                    if (updateTimer(el, endTime) === false) clearInterval(timerId);
+                    if (updateTimer(el, endTime, startTime) === false) clearInterval(timerId);
                 }, 1000);
             });
         }
 
-        function updateTimer(el, endTime) {
+        function updateTimer(el, endTime, startTime) {
             if (!el.isConnected) return false;   // banner list was re-rendered, stop this old timer
 
             const now = new Date().getTime();
-            const distance = endTime - now;
+            const notStarted = !!startTime && now < startTime;   // event hasn't opened yet: count down to the start instead
+            const distance = (notStarted ? startTime : endTime) - now;
 
             // Countdown reached 0: take the banner off the page
             if (distance <= 0) {
@@ -1934,8 +1985,24 @@
             if (days > 0) timeStr += `${days}d `;
             timeStr += `${hours}h ${minutes}m ${seconds}s`;
 
-            el.innerHTML = `Ends in: <span style="color: #ffb74d;">${timeStr}</span>`;
+            el.innerHTML = `${notStarted ? 'Starts in' : 'Ends in'}: <span style="color: #ffb74d;">${timeStr}</span>`;
             return true;
+        }
+
+        // Start time of "11/13(金)12:00～11/22(日)24:00" for announcements saved without a startAt (the text has no year)
+        function parseJapaneseStart(dateStr) {
+            try {
+                const part = String(dateStr || '').split(/[～~]/)[0];
+                const m = part.match(/(\d{1,2})\/(\d{1,2})[^\d]*(\d{1,2}):(\d{2})/);
+                if (!m) return null;
+                const jstNow = new Date(Date.now() + 9 * 3600000);
+                let year = jstNow.getUTCFullYear();
+                const at = y => Date.UTC(y, +m[1] - 1, +m[2], +m[3], +m[4]) - 9 * 3600000;
+                let t = at(year);
+                if (t > Date.now() + 200 * 86400000) t = at(year - 1);        // e.g. a December date read in January
+                else if (t < Date.now() - 200 * 86400000) t = at(year + 1);   // e.g. a January date read in December
+                return t;
+            } catch (e) { return null; }
         }
 
         function parseJapaneseDate(dateStr) {
@@ -2076,26 +2143,37 @@
             // relative: counted from the "game day" the banner was set on (the last reset before the anchor)
             const rp = jstParts(c.hasReset ? lastReset(c.anchor, c.rh, c.rm) : c.anchor);
             let t = jstToMs(rp.y + y, rp.mo + mo, rp.d + d, th, tm);
-            if (!d && !mo && !y && t <= c.anchor) t += DAY_MS; // only a time of day was given
+            if (!d && !mo && !y && t <= c.anchor && !(c.closure && p !== 'start')) t += DAY_MS; // only a time of day was given (with a closure, End/Reopen keep today's time)
             return t;
         }
 
         function bnSchedule(b, now) {
             const rh0 = bnNum(b.resetHour), rm0 = bnNum(b.resetMinute);
             const hasReset = rh0 !== null || rm0 !== null;
-            const c = { anchor: Number(b.anchor) > 0 ? Number(b.anchor) : now, hasReset, rh: rh0 || 0, rm: rm0 || 0 };
+            const closure = bnMode(b, 'reopen') !== 'off';
+            const c = { anchor: Number(b.anchor) > 0 ? Number(b.anchor) : now, hasReset, rh: rh0 || 0, rm: rm0 || 0, closure };
             let start = bnPoint(b, 'start', c), end = bnPoint(b, 'end', c), rolling = false;
+            // Closure: after the end time the banner stays up as "Closed" until it reopens
+            let reopen = (closure && end > 0) ? bnPoint(b, 'reopen', c) : 0;
+            if (reopen > 0 && reopen <= end) {
+                const timeOnly = bnMode(b, 'reopen') === 'relative' && !bnNum(b.reopenDay) && !bnNum(b.reopenMonth) && !bnNum(b.reopenYear);
+                if (timeOnly) { for (let k = 0; k < 400 && reopen <= end; k++) reopen += DAY_MS; } // "07:00" = the first 07:00 after the end
+                else reopen = 0;
+            }
             if (end === 0 && hasReset) { end = lastReset(now, c.rh, c.rm) + DAY_MS; rolling = true; } // daily countdown
             const rep = parseInt(b.repeat, 10) || 0;
-            if (rep > 0 && !rolling && end > 0 && now >= end) {
+            if (rep > 0 && !rolling && end > 0 && now >= end && !reopen) {
                 const k = Math.floor((now - end) / (rep * DAY_MS)) + 1;
                 if (start > 0) start += k * rep * DAY_MS;
                 end += k * rep * DAY_MS;
             }
-            let state = 'active';
+            let state = 'active', reopened = false;
             if (start > 0 && now < start) state = 'upcoming';
-            else if (end > 0 && now >= end) state = 'ended';
-            return { state, start, end, rolling };
+            else if (end > 0 && now >= end) {
+                if (reopen > 0 && now >= reopen) { reopened = true; end = 0; }
+                else state = reopen > 0 ? 'closed' : 'ended';
+            }
+            return { state, start, end, rolling, reopen, reopened, closure };
         }
 
         const bnCountdown = ms => { ms = Math.max(0, ms); const d = Math.floor(ms / DAY_MS), h = Math.floor(ms % DAY_MS / 3600000), m = Math.floor(ms % 3600000 / 60000), s = Math.floor(ms % 60000 / 1000); return (d > 0 ? d + 'd ' : '') + h + 'h ' + m + 'm ' + s + 's'; };
@@ -2103,6 +2181,7 @@
             const span = ms => '<span style="color: #ffb74d;">' + bnCountdown(ms) + '</span>';
             if (s.state === 'upcoming') return { html: 'Starts in: ' + span(s.start - now), color: '#e0e0e6' };
             if (s.state === 'ended') return { html: 'Ended', color: '#c62828' };
+            if (s.state === 'closed') return { html: '<span style="color: #ef5350; font-weight: bold;">Closed</span> · Starts in: ' + span(s.reopen - now), color: '#e0e0e6' };
             if (s.end > 0) return { html: 'Ends in: ' + span(s.end - now), color: '#e0e0e6' };
             return { html: '', color: '#e0e0e6' };
         }
@@ -2113,8 +2192,11 @@
             customBannerTickItems.forEach(it => {
                 const el = document.getElementById(it.elId);
                 if (!el) return;
-                const r = bnCountdownHtml(bnSchedule(it.banner, now), now);
+                const sch = bnSchedule(it.banner, now);
+                const r = bnCountdownHtml(sch, now);
                 el.innerHTML = r.html; el.style.color = r.color; el.style.display = r.html ? '' : 'none';
+                const card = el.closest('.ann-banner-container');
+                if (card) card.classList.toggle('bn-closed', sch.state === 'closed');   // closed banners stay, but look dimmed
             });
         }
         function processCustomBannerTimer(banner, elId) {
@@ -2173,6 +2255,7 @@
                     metaCategories = Array.isArray(data.meta_registry_v2) ? data.meta_registry_v2 : [];
                     announcementsData = Array.isArray(data.announcements) ? data.announcements : [];
                     customBannersData = Array.isArray(data.custom_banners) ? data.custom_banners : [];
+                    charactersData = (data.characters && typeof data.characters === 'object') ? data.characters : null;
                     
                     // --- SHARED IMAGE TABLE RESOLVER ---
                     if (data.images && typeof data.images === 'object') {
@@ -2227,6 +2310,7 @@
                 metaCategories = [];
             }
             if (typeof renderCustomBanners === 'function') renderCustomBanners();
+            if (typeof renderCharacters === 'function') renderCharacters();
             updateFilteredItems();
             setupDisplay();
             const metaPanel = document.getElementById('panel-metalist');
