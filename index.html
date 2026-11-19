@@ -162,6 +162,14 @@
         .meta-character-column { display: flex; flex-direction: column; align-items: center; gap: 10px; }
         .meta-avatar-slot { width: 85px; height: 85px; background: #252532; border: 2px dashed #44445a; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 28px; color: #555566; overflow: hidden; position: relative; }
         .meta-avatar-slot img { width: 100%; height: 100%; object-fit: cover; }
+        .meta-avatar-slot { container-type: inline-size; }   /* the face crop is measured in tile-width units */
+        .meta-char-row { display: flex; gap: 6px; align-items: flex-start; }
+        .meta-stig-col { display: flex; flex-direction: column; gap: 3px; }
+        .meta-avatar-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 70px; }
+        .meta-char-name { width: 100%; text-align: center; font-size: 10px; font-weight: bold; color: #ffb74d; letter-spacing: 0.5px; line-height: 1.2; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .meta-stig-icon { width: 20px; height: 20px; box-sizing: border-box; border-radius: 50%; border: 2px solid #4aa8d8; background: #12304f; overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #4aa8d8; font-size: 8px; transition: transform .12s, border-color .12s; }
+        .meta-stig-icon:hover { transform: scale(1.18); border-color: #ffc400; }
+        .meta-stig-icon img { width: 100%; height: 100%; object-fit: contain; }
         .meta-equipment-box { display: flex; flex-direction: column; gap: 15px; }
         .meta-equip-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
         
@@ -246,6 +254,10 @@
         .meta-viewer-content .meta-loadout-container { margin-bottom: 0 !important; }
 		
         /* ===== REPLACEMENT ICON & POPUP STYLES ===== */
+        /* The hovered card and slot are lifted above their neighbours, so other slots' buttons and the next card can't draw over an open Replacements popup */
+        .meta-loadout-container { position: relative; }
+        .meta-loadout-container:has(.replacement-container:hover) { z-index: 300; }
+        .replacement-container:hover { z-index: 400; }
         .replacement-container {
             position: absolute;
             top: -8px;
@@ -584,6 +596,8 @@
         .cs-panel { position: absolute; left: 61%; top: 19%; width: 27%; border-radius: .9cqw; overflow: hidden; background: rgba(14,18,30,.92); border: 1px solid rgba(120,160,220,.35); box-shadow: 0 .5cqw 2cqw rgba(0,0,0,.5); }
         .cs-ph { background: #3a9ad6; color: #fff; font-weight: bold; font-size: 1.7cqw; padding: .8cqw 1.2cqw; }
         .cs-pb { padding: 1.1cqw 1.3cqw; font-size: 1.5cqw; line-height: 1.55; white-space: pre-wrap; color: #dce6f7; max-height: 22cqw; overflow-y: auto; }
+        .csm { background: rgba(74,168,216,.28); color: #8fd3ff; border-radius: .5cqw; padding: 0 .5cqw; cursor: pointer; font-weight: 600; transition: background .12s; }
+        .csm:hover { background: rgba(74,168,216,.5); }
         .cs-plot { padding: 20px 24px; font-size: 15px; line-height: 1.75; white-space: pre-wrap; max-height: 70vh; overflow-y: auto; }
         .ch-btns { position: absolute; top: 172px; display: flex; flex-wrap: wrap; gap: 8px; z-index: 1000; align-items: flex-start; }
         .ch-btns.ch-left { left: 14px; width: 600px; }
@@ -706,16 +720,6 @@
                             </div>
                             <div class="ann-img-wrapper">
                                 <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1543_img.png" alt="Banner">
-                            </div>
-                        </div>
-                    
-                        <div class="ann-banner-container" onclick="openAnnModal(1)">
-                            <div class="ann-header">
-                                <div class="ann-title">The servant "Ruvisa" reappears！</div>
-                                <div class="ann-countdown" id="countdown_1" data-date="11/16(月)12:00～11/19(木)12:00" data-end="1795057200000" data-start="1794798000000">Calculating...</div>
-                            </div>
-                            <div class="ann-img-wrapper">
-                                <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1542_img.png" alt="Banner">
                             </div>
                         </div>
                     
@@ -848,6 +852,18 @@
             "light": "element icon/light.webp", "physical": "element icon/physical.webp",
             "poison": "element icon/poison.webp", "snow": "element icon/snow.webp"
         };
+        // One clean icon per element, saved by the editor straight from your "element icon" folder. Icons are looked up by the element's NAME,
+        // never by an item's own saved copy, which could be out of date or belong to another element.
+        let elementIconMap = {};
+        function elementSrc(el, item) {
+            const key = String(el || '').toLowerCase().trim();
+            if (!key || key === 'none') return '';
+            if (elementIconMap[key]) return elementIconMap[key];
+            // older data without the clean set: fall back to the item's own copy, but only for its own main element
+            if (!Object.keys(elementIconMap).length && item && String(item.itemElement || '').toLowerCase().trim() === key && String(item.elementIcon || '').startsWith('data:')) return item.elementIcon;
+            return ELEMENT_ICONS[key] || '';
+        }
+
         const GAME_STAR_ICON = "element icon/star.webp";
 
         let currentPage = 1;
@@ -1080,12 +1096,9 @@
                                 <div>Combat Power: <span class="meta-stat-value" id="p_${card.id}">0</span></div>
                             </div>
                         </div>
-                        <div class="meta-layout-grid" style="grid-template-columns: 70px 1fr; gap: 15px;">
+                        <div class="meta-layout-grid" style="grid-template-columns: 104px 1fr; gap: 15px;">
                             <div class="meta-character-column">
-                                <div class="meta-avatar-slot" style="width: 70px; height: 70px; font-size: 24px; cursor: ${card.loadout.avatar ? 'pointer' : 'default'};" title="Avatar" ${card.loadout.avatar ? `onclick="openPopup('${card.loadout.avatar}')"` : ''}>
-                                    ${card.loadout.avatar ? '<img src="' + (database[card.loadout.avatar] ? database[card.loadout.avatar].img : card.loadout.avatar) + '">' : '👤'}
-                                </div>
-                                <span style="font-size: 10px; font-weight: bold; color: #ffb74d; letter-spacing: 0.5px;">AVATAR</span>
+                                ${metaCharacterHtml(card)}
                             </div>
                             <div class="meta-equipment-box" style="gap: 10px;">
                                 <div style="display: grid; grid-template-columns: 1fr 10px 1fr 1fr 1fr; gap: 10px;">
@@ -1330,6 +1343,8 @@
 
         function openPopup(id, verKey) {
             const baseItem0 = database[id]; if (!baseItem0) return;
+            if (!verKey) lastSkillTab = 'tab-skill-base';   // a fresh popup starts on the Skill tab; a version tab keeps the current one
+            const exTabOpen = !!verKey && lastSkillTab === 'tab-skill-ex';
             // Alpha / Beta / Gamma: tabs appear only when at least two versions have data
             // Linked items (each Alpha / Beta / Gamma has its own ID): tabs jump between their popups
             const groupTabs = Array.isArray(baseItem0.versionGroup) ? baseItem0.versionGroup.filter(m => database[m.id]) : [];
@@ -1362,8 +1377,12 @@
             const starImagesPopup = starCountPopup > 0 ? Array(starCountPopup).fill('<img src="' + activePopupStarSrc + '" style="width:16px; height:16px; object-fit:contain; margin-right:2px; vertical-align:middle;">').join('') : '';
             const displayCrit = (item.critRate || '0').toString().includes('%') ? item.critRate : (item.critRate || '0') + '%';
 
-            // Single element icon per item — reused for item badge and all skill title badges
-            const activeElementIconSrc = item.elementIcon || ELEMENT_ICONS[mainElement] || '';
+            // Main element badge + one icon per skill, each looked up by its own element name
+            const activeElementIconSrc = elementSrc(mainElement, item);
+            const skillIconHtml = el => {
+                const src = elementSrc(el, item);
+                return src ? '<div class="element-icon-wrapper" data-tooltip="' + el + '"><img class="element-icon-img" src="' + src + '"></div>' : '';
+            };
 
             let mainElementHtml = '';
             if (mainElement !== 'none' && activeElementIconSrc) {
@@ -1426,7 +1445,7 @@
             let skillBaseHtml = '';
             if (item.skillTitle1) {
                 let el1 = item.skillElement1 || 'none';
-                let iconHtml1 = (el1 !== 'none' && activeElementIconSrc) ? '<div class="element-icon-wrapper" data-tooltip="' + el1 + '"><img class="element-icon-img" src="' + activeElementIconSrc + '"></div>' : '';
+                let iconHtml1 = skillIconHtml(el1);
                 let descHtml1 = processDetailsInHTML(item.skillDesc1 || '', true);
                 skillBaseHtml += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;">' +
                     '<div class="skill-title-container">' +
@@ -1441,7 +1460,7 @@
             }
             if (item.skillTitle2) {
                 let el2 = item.skillElement2 || 'none';
-                let iconHtml2 = (el2 !== 'none' && activeElementIconSrc) ? '<div class="element-icon-wrapper" data-tooltip="' + el2 + '"><img class="element-icon-img" src="' + activeElementIconSrc + '"></div>' : '';
+                let iconHtml2 = skillIconHtml(el2);
                 let descHtml2 = processDetailsInHTML(item.skillDesc2 || '', true);
                 skillBaseHtml += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;">' +
                     '<div class="skill-title-container">' +
@@ -1458,7 +1477,7 @@
             let skillExHtml = '';
             if (item.skillTitle3) {
                 let el3 = item.skillElement3 || 'none';
-                let iconHtml3 = (el3 !== 'none' && activeElementIconSrc) ? '<div class="element-icon-wrapper" data-tooltip="' + el3 + '"><img class="element-icon-img" src="' + activeElementIconSrc + '"></div>' : '';
+                let iconHtml3 = skillIconHtml(el3);
                 let descHtml3 = processDetailsInHTML(item.skillDesc3 || '', true);
                 skillExHtml += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;">' +
                     '<div class="skill-title-container">' +
@@ -1472,7 +1491,7 @@
             }
             if (item.skillTitle4) {
                 let el4 = item.skillElement4 || 'none';
-                let iconHtml4 = (el4 !== 'none' && activeElementIconSrc) ? '<div class="element-icon-wrapper" data-tooltip="' + el4 + '"><img class="element-icon-img" src="' + activeElementIconSrc + '"></div>' : '';
+                let iconHtml4 = skillIconHtml(el4);
                 let descHtml4 = processDetailsInHTML(item.skillDesc4 || '', true);
                 skillExHtml += '<div class="skill-section" style="margin-bottom:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;">' +
                     '<div class="skill-title-container">' +
@@ -1489,11 +1508,11 @@
             if (skillExHtml !== '') {
                 htmlContent += `
                     <div class="skill-tab-container">
-                        <button class="skill-tab-btn active" onclick="switchSkillTab(event, 'tab-skill-base')">Skill</button>
-                        <button class="skill-tab-btn" onclick="switchSkillTab(event, 'tab-skill-ex')">EX Skill</button>
+                        <button class="skill-tab-btn${exTabOpen ? '' : ' active'}" onclick="switchSkillTab(event, 'tab-skill-base')">Skill</button>
+                        <button class="skill-tab-btn${exTabOpen ? ' active' : ''}" onclick="switchSkillTab(event, 'tab-skill-ex')">EX Skill</button>
                     </div>
-                    <div id="tab-skill-base" class="skill-tab-content active">${skillBaseHtml}</div>
-                    <div id="tab-skill-ex" class="skill-tab-content">${skillExHtml}</div>
+                    <div id="tab-skill-base" class="skill-tab-content${exTabOpen ? '' : ' active'}">${skillBaseHtml}</div>
+                    <div id="tab-skill-ex" class="skill-tab-content${exTabOpen ? ' active' : ''}">${skillExHtml}</div>
                 `;
             } else {
                 // If no EX skills, just show the base skills without tabs
@@ -1535,9 +1554,8 @@
                         const evolutionStarImages = starCountPopup > 0 ? Array(starCountPopup).fill('<img src="' + refStarSrc + '" style="width:11px; height:11px; object-fit:contain; margin-right:1px; vertical-align:middle;">').join('') : '';
 
                         let refElementHtml = '';
-                        let finalElementSrc = linkedItemData.elementIcon;
                         const prevElementVal = linkedItemData.itemElement || 'none';
-                        if (!finalElementSrc && prevElementVal !== 'none') finalElementSrc = ELEMENT_ICONS[prevElementVal] || '';
+                        const finalElementSrc = elementSrc(prevElementVal, linkedItemData);
                         if (finalElementSrc) refElementHtml = '<div class="item-element-icon-wrapper" data-tooltip="' + prevElementVal + '" style="width:16px; height:16px; display:inline-flex; align-items:center;"><img src="' + finalElementSrc + '" style="width:100%; height:100%; object-fit:contain;"></div>';
 
                         htmlContent += `<div class="evolution-card" onclick="openPopup('${refId}')" style="display: inline-flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.04); padding: 8px 14px; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
@@ -1664,6 +1682,8 @@
             // Load the scraped Characters section and your custom buttons
             try { charactersData = JSON.parse(await Neutralino.storage.getData('characters_content')) || null; }
             catch (err) { charactersData = null; }
+            try { elementIconMap = JSON.parse(await Neutralino.storage.getData('element_icons')) || {}; }
+            catch (err) { elementIconMap = {}; }
             try { characterDetailsData = JSON.parse(await Neutralino.storage.getData('characters_details')) || {}; }
             catch (err) { characterDetailsData = {}; }
 
@@ -1747,6 +1767,51 @@
         let announcementsData = [];
 
         // The article HTML comes from another website, so clean it before it goes into the popup
+        // ---- Meta cards: the character's face + up to 4 picked stigmata ----
+        let charaOrder = { html: null, ids: [] };
+        function charaFace(id) {
+            if (!charactersData || !charactersData.css) return null;
+            const m = new RegExp('\\.' + String(id).replace(/[^\w-]/g, '') + '-title\\s*\\{[^}]*?url\\("([^"]+)"\\)').exec(charactersData.css);
+            if (!m) return null;
+            if (charaOrder.html !== charactersData.html) {
+                const doc = new DOMParser().parseFromString('<div id="r">' + (charactersData.html || '') + '</div>', 'text/html');
+                charaOrder = { html: charactersData.html, ids: [...doc.querySelectorAll('.chara-frame[id]')].map(f => f.id) };
+            }
+            // the banner holds two frames (normal + hover): show the top one, cropped to the face side (left for odd frames, right for even)
+            const a = new RegExp('\\.' + String(id).replace(/[^\w-]/g, '') + '\\s+\\.draw\\s*\\{[^}]*?url\\("([^"]+)"\\)').exec(charactersData.css);
+            return { url: m[1], art: a ? a[1] : '', side: charaOrder.ids.indexOf(id) % 2 === 1 ? 'right' : 'left' };
+        }
+        // crop = { src: 'banner' | 'art', z, ox, oy } set in the editor: the picture is z tile-widths wide, shifted by (ox, oy) tile-widths
+        function metaFaceStyle(f, crop) {
+            if (!f) return '';
+            const useArt = !!f.art;
+            const c = (crop && (crop.src === 'art') === useArt) ? crop : null;
+            const z = c ? c.z : (useArt ? 2.2 : 5.39), ox = c ? c.ox : (useArt ? -0.6 : (f.side === 'left' ? -0.57 : -3.83)), oy = c ? c.oy : 0;
+            return "background-image: url('" + (useArt ? f.art : f.url) + "'); background-repeat: no-repeat; background-size: calc(" + (+z) + " * 100cqw) auto; background-position: calc(" + (+ox) + " * 100cqw) calc(" + (+oy) + " * 100cqw);";
+        }
+        function openMetaStigmata(charId, nodeId) {
+            const st = characterDetailsData[charId] && characterDetailsData[charId].stigmata;
+            if (!st) return;
+            openCharaStigmata(charId);
+            csGoTo(st, nodeId);   // same as clicking that stigmata in the Stigmata window: its details open on the side
+        }
+        function metaCharacterHtml(card) {
+            let avatar;
+            if (card.character) {
+                const face = charaFace(card.character);
+                avatar = '<div class="meta-avatar-slot" style="width: 70px; height: 70px; border-style: solid;" title="' + csEsc(csPretty(card.character)) + '">' + (face ? '<div style="width: 100%; height: 100%; ' + metaFaceStyle(face, card.faceCrop) + '"></div>' : '<span style="font-size: 10px; text-align: center;">' + csEsc(csPretty(card.character)) + '</span>') + '</div>';
+            } else if (card.loadout.avatar) {
+                avatar = '<div class="meta-avatar-slot" style="width: 70px; height: 70px; cursor: pointer;" title="Avatar" onclick="openPopup(\'' + card.loadout.avatar + '\')"><img src="' + (database[card.loadout.avatar] ? database[card.loadout.avatar].img : card.loadout.avatar) + '"></div>';
+            } else {
+                avatar = '<div class="meta-avatar-slot" style="width: 70px; height: 70px; font-size: 24px;">👤</div>';
+            }
+            const st = card.character && characterDetailsData[card.character] && characterDetailsData[card.character].stigmata;
+            const picked = st ? (card.stigmata || []).slice(0, 4).map(id => ({ id: id, n: csFind(st, id) })).filter(x => x.n) : [];
+            const col = picked.length ? '<div class="meta-stig-col">' + picked.map(x => '<div class="meta-stig-icon" title="' + csEsc(x.n.title || 'Stigmata') + '" onclick="openMetaStigmata(\'' + csEsc(card.character) + '\', \'' + csEsc(x.id) + '\')">' + (csImg(x.n.img) ? '<img src="' + csImg(x.n.img) + '">' : '●') + '</div>').join('') + '</div>' : '';
+            const nm = card.character ? csPretty(card.character) : 'Character';
+            return '<div class="meta-char-row"><div class="meta-avatar-wrap">' + avatar + '<span class="meta-char-name">' + csEsc(nm) + '</span></div>' + col + '</div>';
+        }
+
         // ---- Characters tab: shows the "chara-content" HTML scraped in the editor ----
         let charactersData = null;
         function sanitizeCharactersHtml(html) {
@@ -1820,23 +1885,29 @@
                 + (hasExtra ? `<div class="cs-yline"></div><div class="cs-arrow" style="left: ${CS_COL_X}%; top: 88%;" title="${view === 'main' ? 'Show the extra rows' : 'Back'}">${view === 'main' ? '▶' : '◀'}</div>` : '')
                 + nodes + '<div class="cs-panel" id="csPanel" hidden></div>';
         }
+        // {{node:ID}} in a description becomes a highlighted name; clicking it opens that stigmata like a direct click on it
+        function csDescHtml(text, st) {
+            return String(text || '').split(/(\{\{node:[\w-]+\}\})/).map(part => {
+                const m = /^\{\{node:([\w-]+)\}\}$/.exec(part);
+                if (!m) return csEsc(part);
+                const n = csFind(st, m[1]);
+                return n ? '<span class="csm" data-id="' + csEsc(m[1]) + '">' + csEsc(n.title || 'Untitled') + '</span>' : '';
+            }).join('');
+        }
+        function csGoTo(st, id) {
+            const stage = document.getElementById('csStage'), view = stage.dataset.view;
+            const isMain = (st.nodes || []).some(n => n.id === id), isHead = (st.extras || []).some(r => r[0] && r[0].id === id);
+            const need = isMain ? 'main' : (isHead ? view : 'extra');   // heads of the extra rows show in both views
+            if (need !== view) csDraw(st, need);
+            csSelect(st, id);
+        }
+
         function csSelect(st, id) {
             const stage = document.getElementById('csStage'), panel = document.getElementById('csPanel'), n = id ? csFind(st, id) : null;
             stage.querySelectorAll('.csn').forEach(el => el.classList.toggle('sel', el.dataset.id === id));
             if (!n) { panel.hidden = true; return; }
-            panel.innerHTML = `<div class="cs-ph">● ${csEsc(n.title || 'Untitled')}</div><div class="cs-pb">${csEsc(n.desc || '')}</div>`;
+            panel.innerHTML = `<div class="cs-ph">● ${csEsc(n.title || 'Untitled')}</div><div class="cs-pb">${csDescHtml(n.desc, st)}</div>`;
             panel.hidden = false;
-            // open the panel next to the node that was clicked (on its left when there is no room on the right)
-            const nodeEl = [...stage.querySelectorAll('.csn')].find(el => el.dataset.id === id);
-            if (nodeEl) {
-                const sr = stage.getBoundingClientRect(), nr = nodeEl.getBoundingClientRect();
-                const pw = panel.offsetWidth, ph = panel.offsetHeight, gap = nr.width * 0.4;
-                let x = nr.right - sr.left + gap;
-                if (x + pw > sr.width - 8) x = nr.left - sr.left - gap - pw;
-                x = Math.max(8, Math.min(x, sr.width - pw - 8));
-                const y = Math.max(8, Math.min(nr.top - sr.top - nr.height * 0.15, sr.height - ph - 8));
-                panel.style.left = x + 'px'; panel.style.top = y + 'px';
-            }
         }
         function openCharaStigmata(id) {
             const st = characterDetailsData[id] && characterDetailsData[id].stigmata;
@@ -1845,6 +1916,8 @@
             csDraw(st, 'main');
             const stage = document.getElementById('csStage');
             stage.addEventListener('click', ev => {
+                const mention = ev.target.closest('.csm');
+                if (mention) { csGoTo(st, mention.dataset.id); return; }
                 if (ev.target.closest('.cs-arrow')) { csDraw(st, stage.dataset.view === 'main' ? 'extra' : 'main'); return; }
                 const nEl = ev.target.closest('.csn');
                 if (nEl) { csSelect(st, nEl.dataset.id); return; }
@@ -2044,7 +2117,7 @@
             const mainElement = (item.itemElement || 'none').toLowerCase().trim();
             const subCat = item.subcategory || 'Role';
             const iconSrc = item.categoryIcon || (typeof subcategoryIcons !== 'undefined' ? subcategoryIcons['default'] : '');
-            const elIconSrc = item.elementIcon || (typeof ELEMENT_ICONS !== 'undefined' ? ELEMENT_ICONS[mainElement] : '') || '';
+            const elIconSrc = elementSrc(mainElement, item);
             const starCount = (item.stars || '').replace(/[^⭐]/g, '').length || 0;
             const starSrc = item.starIcon || (typeof GAME_STAR_ICON !== 'undefined' ? GAME_STAR_ICON : '');
 
@@ -2292,7 +2365,10 @@
             }
         }
 		
+        let lastSkillTab = 'tab-skill-base';   // which skill tab was open, so Alpha / Beta / Gamma tabs keep it
+
         function switchSkillTab(evt, tabId) {
+            lastSkillTab = tabId;
             // Hide all content
             const tabContents = document.getElementsByClassName("skill-tab-content");
             for (let i = 0; i < tabContents.length; i++) {
@@ -2507,6 +2583,7 @@
                     customBannersData = Array.isArray(data.custom_banners) ? data.custom_banners : [];
                     charactersData = (data.characters && typeof data.characters === 'object') ? data.characters : null;
                     characterDetailsData = (data.character_details && typeof data.character_details === 'object') ? data.character_details : {};
+                    elementIconMap = (data.element_icons && typeof data.element_icons === 'object') ? data.element_icons : {};
                     
                     // --- SHARED IMAGE TABLE RESOLVER ---
                     if (data.images && typeof data.images === 'object') {
