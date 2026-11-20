@@ -249,6 +249,7 @@
             grid-template-columns: repeat(auto-fill, minmax(min(440px, 100%), 1fr));
             gap: 20px;
             align-items: start;
+            align-content: start;   /* rows keep the card height; spare window height no longer stretches them apart */
         }
         .meta-viewer-content > * { max-width: 530px; width: 100%; }   /* a lone card never stretches past its full-screen size */
         .meta-viewer-content .meta-loadout-container { margin-bottom: 0 !important; }
@@ -588,6 +589,12 @@
         .cs-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
         .cs-lines line { stroke: #8fd3ff; stroke-width: 4; vector-effect: non-scaling-stroke; opacity: .9; filter: drop-shadow(0 0 3px #4aa8ff); }
         .csn { position: absolute; transform: translate(-50%, -50%); aspect-ratio: 1; border-radius: 50%; box-sizing: border-box; background: #12304f; border: .3cqw solid #4aa8d8; box-shadow: 0 0 1cqw rgba(80,170,255,.7); display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; color: #4aa8d8; font-size: 1.4cqw; transition: transform .12s; }
+.csn.sq { border: 0; border-radius: 0; background: transparent; box-shadow: none; overflow: visible; }
+        .csn.sq img { border-radius: 0; }
+        .csn.sq.sel { filter: url(#stgY); box-shadow: none; border-color: transparent; }
+        .meta-stig-icon.sq { border: 0; border-radius: 0; background: transparent; overflow: visible; }
+        .meta-stig-icon.sq img { border-radius: 0; }
+        .meta-stig-icon.sq:hover { filter: url(#stgY); }
         .csn:hover { transform: translate(-50%, -50%) scale(1.1); }
         .csn.sel { border-color: #ffc400; box-shadow: 0 0 1.4cqw #ffc400; }
         .csn img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
@@ -596,6 +603,39 @@
         .cs-panel { position: absolute; left: 61%; top: 19%; width: 27%; border-radius: .9cqw; overflow: hidden; background: rgba(14,18,30,.92); border: 1px solid rgba(120,160,220,.35); box-shadow: 0 .5cqw 2cqw rgba(0,0,0,.5); }
         .cs-ph { background: #3a9ad6; color: #fff; font-weight: bold; font-size: 1.7cqw; padding: .8cqw 1.2cqw; }
         .cs-pb { padding: 1.1cqw 1.3cqw; font-size: 1.5cqw; line-height: 1.55; white-space: pre-wrap; color: #dce6f7; max-height: 22cqw; overflow-y: auto; }
+        /* bullet / numbered lines in descriptions */
+        .cs-ln { min-height: 1em; }
+        .cs-li { display: flex; gap: .45em; }
+        .cs-lm { flex: none; min-width: 1.4em; text-align: right; }
+        .cs-lt { flex: 1; min-width: 0; }
+        .cs-pb, .cs-plot { scrollbar-width: thin; scrollbar-color: #3a4560 #0e121e; }
+        .cs-pb::-webkit-scrollbar, .cs-plot::-webkit-scrollbar { width: 8px; }
+        .cs-pb::-webkit-scrollbar-track, .cs-plot::-webkit-scrollbar-track { background: #0e121e; border-radius: 4px; }
+        .cs-pb::-webkit-scrollbar-thumb, .cs-plot::-webkit-scrollbar-thumb { background: #3a4560; border-radius: 4px; border: 2px solid #0e121e; }
+        .cs-pb::-webkit-scrollbar-thumb:hover, .cs-plot::-webkit-scrollbar-thumb:hover { background: #4aa8d8; }
+        /* Ultimate skill popup (dark) */
+        .cs-head-l { display: flex; align-items: center; gap: 14px; min-width: 0; }
+        .cs-ult-btn { background: #ffb74d; color: #2b1d00; border: none; border-radius: 14px; padding: 4px 14px; font-weight: 700; font-size: 13px; cursor: pointer; }
+        .cs-ult-btn:hover { background: #ffc86b; }
+        .cu-modal { width: min(600px, 100%); background: #151a28; border: 1px solid rgba(120,160,220,.3); border-radius: 20px; box-shadow: 0 14px 50px rgba(0,0,0,.65); color: #dce6f7; overflow: hidden; }
+        .cu-modal .cs-head { background: transparent; border-bottom: none; padding: 10px 14px 0; justify-content: flex-end; }
+        .cu-body { padding: 4px 26px 28px; max-height: 80vh; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #3a4560 #151a28; }
+        .cu-body::-webkit-scrollbar { width: 8px; }
+        .cu-body::-webkit-scrollbar-track { background: #151a28; }
+        .cu-body::-webkit-scrollbar-thumb { background: #3a4560; border-radius: 4px; }
+        .cu-top { display: flex; gap: 22px; align-items: flex-start; }
+        .cu-pic { position: relative; flex: 0 0 44%; aspect-ratio: 17 / 10; box-sizing: border-box; border: 3px solid #4aa8d8; border-radius: 14px; background: #0e121e; }
+        .cu-pic img.cu-main { width: 100%; height: 100%; object-fit: cover; border-radius: 11px; display: block; }
+        .cu-badge { position: absolute; right: 3px; bottom: 3px; width: 26%; aspect-ratio: 1; pointer-events: none; }
+        .cu-badge img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 4px rgba(108,196,255,.75)) drop-shadow(0 0 10px rgba(74,168,216,.45)); }
+        .cu-info { flex: 1; min-width: 0; padding-top: 2px; }
+        .cu-name { font-size: 24px; font-weight: 800; color: #6cc4ff; line-height: 1.25; margin-bottom: 6px; word-break: break-word; }
+        .cu-s1 { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 700; color: #e6ecf7; }
+        .cu-s1::after { content: ''; flex: 1; border-bottom: 2px dotted #4a5675; transform: translateY(3px); }
+        .cu-s2 { font-size: 14px; font-weight: 600; color: #8a95aa; margin-top: 3px; }
+        .cu-bar { height: 8px; border-radius: 4px; background: #232b42; margin: 20px 0 16px; }
+        .cu-desc { font-size: 16px; font-weight: 600; line-height: 1.6; color: #dce6f7; white-space: pre-wrap; word-break: break-word; }
+        .cu-hl { color: #ffc400; }
         .csm { background: rgba(74,168,216,.28); color: #8fd3ff; border-radius: .5cqw; padding: 0 .5cqw; cursor: pointer; font-weight: 600; transition: background .12s; }
         .csm:hover { background: rgba(74,168,216,.5); }
         .cs-plot { padding: 20px 24px; font-size: 15px; line-height: 1.75; white-space: pre-wrap; max-height: 70vh; overflow-y: auto; }
@@ -685,6 +725,7 @@
     </style>
 <script>window.Neutralino = window.Neutralino || { init(){}, events:{ on(){}, off(){}, dispatch(){} } };</script><style>button[onclick*='openEditor']{display:none !important;}</style></head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><filter id="stgY" x="-40%" y="-40%" width="180%" height="180%" color-interpolation-filters="sRGB"><feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 24 -12" result="a"/><feMorphology in="a" operator="dilate" radius="1.5" result="d"/><feComposite in="d" in2="a" operator="out" result="edge"/><feFlood flood-color="#ffc400" result="c"/><feComposite in="c" in2="edge" operator="in" result="ring"/><feGaussianBlur in="d" stdDeviation="3" result="gb"/><feComposite in="c" in2="gb" operator="in" result="glow"/><feMerge><feMergeNode in="glow"/><feMergeNode in="ring"/><feMergeNode in="SourceGraphic"/></feMerge></filter><filter id="stgC" x="-40%" y="-40%" width="180%" height="180%" color-interpolation-filters="sRGB"><feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 24 -12" result="a"/><feMorphology in="a" operator="dilate" radius="1.5" result="d"/><feComposite in="d" in2="a" operator="out" result="edge"/><feFlood flood-color="#4dd0e1" result="c"/><feComposite in="c" in2="edge" operator="in" result="ring"/><feGaussianBlur in="d" stdDeviation="3" result="gb"/><feComposite in="c" in2="gb" operator="in" result="glow"/><feMerge><feMergeNode in="glow"/><feMergeNode in="ring"/><feMergeNode in="SourceGraphic"/></feMerge></filter><filter id="stgG" x="-40%" y="-40%" width="180%" height="180%" color-interpolation-filters="sRGB"><feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 24 -12" result="a"/><feMorphology in="a" operator="dilate" radius="1.5" result="d"/><feComposite in="d" in2="a" operator="out" result="edge"/><feFlood flood-color="#66bb6a" result="c"/><feComposite in="c" in2="edge" operator="in" result="ring"/><feGaussianBlur in="d" stdDeviation="3" result="gb"/><feComposite in="c" in2="gb" operator="in" result="glow"/><feMerge><feMergeNode in="glow"/><feMergeNode in="ring"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs></svg>
 
     <div class="navbar">
         <div class="navbar-title">GGZ Tools by Extreeme33</div>
@@ -715,45 +756,65 @@
                 <div id="announcementContainer" style="display: flex; flex-direction: column; gap: 15px;">
                         <div class="ann-banner-container" onclick="openAnnModal(0)">
                             <div class="ann-header">
+                                <div class="ann-title">【Event】Return of the Knight</div>
+                                <div class="ann-countdown" id="countdown_0" data-date="11/20(金)12:00～12/6(日)24:00" data-end="1796569200000" data-start="1795143600000">Calculating...</div>
+                            </div>
+                            <div class="ann-img-wrapper">
+                                <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1547_img.png" alt="Banner">
+                            </div>
+                        </div>
+                    
+                        <div class="ann-banner-container" onclick="openAnnModal(1)">
+                            <div class="ann-header">
+                                <div class="ann-title">The servant "Armored Armored Munno" reappears！</div>
+                                <div class="ann-countdown" id="countdown_1" data-date="11/23(月)12:00～11/26(木)12:00" data-end="1795662000000" data-start="1795402800000">Calculating...</div>
+                            </div>
+                            <div class="ann-img-wrapper">
+                                <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1546_img.png" alt="Banner">
+                            </div>
+                        </div>
+                    
+                        <div class="ann-banner-container" onclick="openAnnModal(2)">
+                            <div class="ann-header">
+                                <div class="ann-title">11/20 (Fri) 12:00 ～ 11/27 (Fri) 12:00 Period, "Roaring Meteor" and "Assassination Declaration" will be added to "Princess Prayer"！</div>
+                                <div class="ann-countdown" id="countdown_2" data-date="11/20(金)12:00～11/27(金)12:00" data-end="1795748400000" data-start="1795143600000">Calculating...</div>
+                            </div>
+                            <div class="ann-img-wrapper">
+                                <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1545_img.png" alt="Banner">
+                            </div>
+                        </div>
+                    
+                        <div class="ann-banner-container" onclick="openAnnModal(3)">
+                            <div class="ann-header">
                                 <div class="ann-title">【Event】Entering the paradise</div>
-                                <div class="ann-countdown" id="countdown_0" data-date="11/13(金)12:00～11/22(日)24:00" data-end="1795359600000" data-start="1794538800000">Calculating...</div>
+                                <div class="ann-countdown" id="countdown_3" data-date="11/13(金)12:00～11/22(日)24:00" data-end="1795359600000" data-start="1794538800000">Calculating...</div>
                             </div>
                             <div class="ann-img-wrapper">
                                 <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1543_img.png" alt="Banner">
                             </div>
                         </div>
                     
-                        <div class="ann-banner-container" onclick="openAnnModal(2)">
-                            <div class="ann-header">
-                                <div class="ann-title">The limited-time skin "Nindi･ Summer End Fish" is back</div>
-                                <div class="ann-countdown" id="countdown_2" data-date="11/13(金)12:00～11/20(金)12:00" data-end="1795143600000" data-start="1794538800000">Calculating...</div>
-                            </div>
-                            <div class="ann-img-wrapper">
-                                <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1541_img.png" alt="Banner">
-                            </div>
-                        </div>
-                    
-                        <div class="ann-banner-container" onclick="openAnnModal(3)">
+                        <div class="ann-banner-container" onclick="openAnnModal(5)">
                             <div class="ann-header">
                                 <div class="ann-title">【Event】Red Sound</div>
-                                <div class="ann-countdown" id="countdown_3" data-date="11/6(金)12:00～11/22(日)24:00" data-end="1795359600000" data-start="1793934000000">Calculating...</div>
+                                <div class="ann-countdown" id="countdown_5" data-date="11/6(金)12:00～11/22(日)24:00" data-end="1795359600000" data-start="1793934000000">Calculating...</div>
                             </div>
                             <div class="ann-img-wrapper">
                                 <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1540_img.png" alt="Banner">
                             </div>
                         </div>
                     
-                        <div class="ann-banner-container" onclick="openAnnModal(5)">
+                        <div class="ann-banner-container" onclick="openAnnModal(6)">
                             <div class="ann-header">
                                 <div class="ann-title">【Event】Tower of the Heroes</div>
-                                <div class="ann-countdown" id="countdown_5" data-date="10/30(金)12:00～11/22(日)24:00" data-end="1795359600000" data-start="1793329200000">Calculating...</div>
+                                <div class="ann-countdown" id="countdown_6" data-date="10/30(金)12:00～11/22(日)24:00" data-end="1795359600000" data-start="1793329200000">Calculating...</div>
                             </div>
                             <div class="ann-img-wrapper">
                                 <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1535_img.png" alt="Banner">
                             </div>
                         </div>
                     
-                        <div class="ann-banner-container" onclick="openAnnModal(6)">
+                        <div class="ann-banner-container" onclick="openAnnModal(7)">
                             <div class="ann-header">
                                 <div class="ann-title">Ver 13.1 New Features</div>
                                 <div class="ann-countdown" style="color:#666;">No Date Info</div>
@@ -763,10 +824,10 @@
                             </div>
                         </div>
                     
-                        <div class="ann-banner-container" onclick="openAnnModal(7)">
+                        <div class="ann-banner-container" onclick="openAnnModal(8)">
                             <div class="ann-header">
                                 <div class="ann-title">"Hom's Reward" unlocked！</div>
-                                <div class="ann-countdown" id="countdown_7" data-date="10/9(金)4:00～12/1(火)24:00" data-end="1796137200000" data-start="1791486000000">Calculating...</div>
+                                <div class="ann-countdown" id="countdown_8" data-date="10/9(金)4:00～12/1(火)24:00" data-end="1796137200000" data-start="1791486000000">Calculating...</div>
                             </div>
                             <div class="ann-img-wrapper">
                                 <img src="https://hsod2-webview.s3.ap-northeast-1.amazonaws.com/oshirase_img/1521_img.png" alt="Banner">
@@ -1234,7 +1295,7 @@
             
             if (noteText.trim() !== '') {
                 html += `
-                    <div style="margin-top: 6px; width: 100%; background: #121216; border: 1px solid #3a3a4c; color: #ffb74d; padding: 4px 6px; border-radius: 4px; font-size: 11px; box-sizing: border-box; text-align: center;">
+                    <div style="margin-top: 6px; width: 100%; background: #121216; border: 1px solid #3a3a4c; color: #ffb74d; padding: 4px 6px; border-radius: 4px; font-size: 11px; box-sizing: border-box; text-align: center; display: flex; align-items: center; justify-content: center;">
                         ${noteText}
                     </div>`;
             }
@@ -1807,7 +1868,7 @@
             }
             const st = card.character && characterDetailsData[card.character] && characterDetailsData[card.character].stigmata;
             const picked = st ? (card.stigmata || []).slice(0, 4).map(id => ({ id: id, n: csFind(st, id) })).filter(x => x.n) : [];
-            const col = picked.length ? '<div class="meta-stig-col">' + picked.map(x => '<div class="meta-stig-icon" title="' + csEsc(x.n.title || 'Stigmata') + '" onclick="openMetaStigmata(\'' + csEsc(card.character) + '\', \'' + csEsc(x.id) + '\')">' + (csImg(x.n.img) ? '<img src="' + csImg(x.n.img) + '">' : '●') + '</div>').join('') + '</div>' : '';
+            const col = picked.length ? '<div class="meta-stig-col">' + picked.map(x => '<div class="meta-stig-icon' + (x.n.shape === 'square' ? ' sq' : '') + '" title="' + csEsc(x.n.title || 'Stigmata') + '" onclick="openMetaStigmata(\'' + csEsc(card.character) + '\', \'' + csEsc(x.id) + '\')">' + (csImg(x.n.img) ? '<img src="' + csImg(x.n.img) + '">' : '●') + '</div>').join('') + '</div>' : '';
             const nm = card.character ? csPretty(card.character) : 'Character';
             return '<div class="meta-char-row"><div class="meta-avatar-wrap">' + avatar + '<span class="meta-char-name">' + csEsc(nm) + '</span></div>' + col + '</div>';
         }
@@ -1844,18 +1905,46 @@
 
         // ---- Characters: rows start closed, a click on the title bar opens one; the CV buttons play the voice ----
         let characterDetailsData = {};   // { characterId: { stigmata: {...}, plot: '...' } } made in the editor
-        const CS_COL_X = 19, CS_ROWS_Y = [30, 50, 69], CS_STEP = 8.8;
+        const CS_COL_X = 19, CS_STEP = 8.8, CS_MAX_EXTRA = 4;
+        // Y position of each extra row: only rows that have nodes count, and they are centred vertically (1, 2, 3 or 4 rows)
+        function csRowYs(extras) {
+            const used = extras.map((r, i) => r.length ? i : -1).filter(i => i >= 0), sp = used.length >= 4 ? 16 : 19.5, ys = [];
+            used.forEach((ri, k) => { ys[ri] = 50 + (k - (used.length - 1) / 2) * sp; });
+            return ys;
+        }
         const csEsc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
         const csImg = u => /^(data:image\/|https?:)/i.test(u || '') ? u : '';
         const csPretty = id => String(id).split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
         function csClose() { const o = document.getElementById('csOverlay'); if (o) o.remove(); }
-        document.addEventListener('keydown', ev => { if (ev.key === 'Escape') csClose(); });
+        function csClose2() { const o = document.getElementById('csOverlay2'); if (o) o.remove(); }
+        document.addEventListener('keydown', ev => { if (ev.key === 'Escape') { if (document.getElementById('csOverlay2')) csClose2(); else csClose(); } });
         function csOpen(html) {
             csClose();
             const o = document.createElement('div');
             o.id = 'csOverlay'; o.className = 'cs-overlay'; o.innerHTML = html;
             o.addEventListener('mousedown', ev => { if (ev.target === o) csClose(); });
             document.body.appendChild(o);
+        }
+        function csOpen2(html) {
+            csClose2();
+            const o = document.createElement('div');
+            o.id = 'csOverlay2'; o.className = 'cs-overlay'; o.style.zIndex = 100001; o.innerHTML = html;
+            o.addEventListener('mousedown', ev => { if (ev.target === o) csClose2(); });
+            document.body.appendChild(o);
+        }
+        const csUltHas = u => !!u && !!(u.img || String(u.name || '').trim() || String(u.sub || '').trim() || String(u.desc || '').trim());
+        function openCharaUltimate(id) {
+            const d = characterDetailsData[id], u = d && d.ultimate;
+            if (!csUltHas(u)) return;
+            const g = characterDetailsData['__ultimate'] || {}, op = g.opacity == null ? 75 : +g.opacity;
+            const lines = String(u.sub || '').split(/\r?\n/).map(x => x.trim()).filter(Boolean);
+            const sub = lines.map((t, i) => '<div class="' + (i === 0 ? 'cu-s1' : 'cu-s2') + '">' + csEsc(t) + '</div>').join('');
+            const desc = csEsc(u.desc || '').replace(/\[\[([\s\S]+?)\]\]/g, '<span class="cu-hl">$1</span>');
+            csOpen2('<div class="cu-modal"><div class="cs-head"><button class="cs-x" onclick="csClose2()">✕</button></div><div class="cu-body">'
+                + '<div class="cu-top">' + (csImg(u.img) || csImg(g.icon) ? '<div class="cu-pic">' + (csImg(u.img) ? '<img class="cu-main" src="' + csImg(u.img) + '" draggable="false">' : '')
+                + (csImg(g.icon) ? '<div class="cu-badge" style="opacity: ' + (op / 100) + ';"><img src="' + csImg(g.icon) + '" draggable="false"></div>' : '') + '</div>' : '')
+                + '<div class="cu-info"><div class="cu-name">' + csEsc(u.name || '') + '</div>' + sub + '</div></div>'
+                + (String(u.desc || '').trim() ? '<div class="cu-bar"></div><div class="cu-desc">' + csListify(desc) + '</div>' : '') + '</div></div>');
         }
         function csFind(st, id) {
             let n = (st.nodes || []).find(x => x.id === id);
@@ -1866,18 +1955,18 @@
             const stage = document.getElementById('csStage');
             if (!stage) return;
             stage.dataset.view = view;
-            const ns = st.nodeSize || 5.4, extras = (st.extras || []).slice(0, 3), hasExtra = extras.some(r => r.length);
-            const nodeEl = (n, x, y) => `<div class="csn" data-id="${csEsc(n.id)}" style="left: ${+x}%; top: ${+y}%; width: ${+ns}%;">${csImg(n.img) ? `<img src="${csImg(n.img)}" draggable="false">` : '●'}</div>`;
+            const ns = st.nodeSize || 5.4, extras = (st.extras || []).slice(0, CS_MAX_EXTRA), hasExtra = extras.some(r => r.length), rowY = csRowYs(extras);
+            const nodeEl = (n, x, y) => `<div class="csn${n.shape === 'square' ? ' sq' : ''}" data-id="${csEsc(n.id)}" style="left: ${+x}%; top: ${+y}%; width: ${+ns}%;">${csImg(n.img) ? `<img src="${csImg(n.img)}" draggable="false">` : '●'}</div>`;
             let lines = '', nodes = '';
             if (view === 'main') {
                 const nn = st.nodes || [];
                 (st.lines || []).forEach(l => { const a = nn.find(n => n.id === l.a), b = nn.find(n => n.id === l.b); if (a && b) lines += `<line x1="${+a.x}" y1="${+a.y}" x2="${+b.x}" y2="${+b.y}"/>`; });
-                nodes = nn.map(n => nodeEl(n, n.x, n.y)).join('') + extras.map((r, i) => r[0] ? nodeEl(r[0], CS_COL_X, CS_ROWS_Y[i]) : '').join('');
+                nodes = nn.map(n => nodeEl(n, n.x, n.y)).join('') + extras.map((r, i) => r[0] ? nodeEl(r[0], CS_COL_X, rowY[i]) : '').join('');
             } else {
                 extras.forEach((row, i) => row.forEach((n, k) => {
                     const x = CS_COL_X + k * CS_STEP;
-                    if (k > 0) lines += `<line x1="${x - CS_STEP}" y1="${CS_ROWS_Y[i]}" x2="${x}" y2="${CS_ROWS_Y[i]}"/>`;
-                    nodes += nodeEl(n, x, CS_ROWS_Y[i]);
+                    if (k > 0) lines += `<line x1="${x - CS_STEP}" y1="${rowY[i]}" x2="${x}" y2="${rowY[i]}"/>`;
+                    nodes += nodeEl(n, x, rowY[i]);
                 }));
             }
             stage.innerHTML = (csImg(st.base) ? `<img class="cs-base${view === 'extra' ? ' dim' : ''}" src="${csImg(st.base)}" style="height: ${+(st.baseScale || 90)}%;">` : '')
@@ -1894,6 +1983,14 @@
                 return n ? '<span class="csm" data-id="' + csEsc(m[1]) + '">' + csEsc(n.title || 'Untitled') + '</span>' : '';
             }).join('');
         }
+        // "• text" / "- text" / "1. text" lines get a hanging indent; every other line stays a plain line
+        function csListify(html) {
+            return String(html).split('\n').map(line => {
+                const m = /^(\s*)(?:([•*-])|(\d+)[.)])\s+(.*)$/.exec(line);
+                if (!m) return '<div class="cs-ln">' + (line || '<br>') + '</div>';
+                return '<div class="cs-li" style="margin-left: ' + (Math.min(m[1].length, 8) * 0.45) + 'em;"><span class="cs-lm">' + (m[3] ? m[3] + '.' : '•') + '</span><span class="cs-lt">' + m[4] + '</span></div>';
+            }).join('');
+        }
         function csGoTo(st, id) {
             const stage = document.getElementById('csStage'), view = stage.dataset.view;
             const isMain = (st.nodes || []).some(n => n.id === id), isHead = (st.extras || []).some(r => r[0] && r[0].id === id);
@@ -1906,13 +2003,13 @@
             const stage = document.getElementById('csStage'), panel = document.getElementById('csPanel'), n = id ? csFind(st, id) : null;
             stage.querySelectorAll('.csn').forEach(el => el.classList.toggle('sel', el.dataset.id === id));
             if (!n) { panel.hidden = true; return; }
-            panel.innerHTML = `<div class="cs-ph">● ${csEsc(n.title || 'Untitled')}</div><div class="cs-pb">${csDescHtml(n.desc, st)}</div>`;
+            panel.innerHTML = `<div class="cs-ph">● ${csEsc(n.title || 'Untitled')}</div><div class="cs-pb">${csListify(csDescHtml(n.desc, st))}</div>`;
             panel.hidden = false;
         }
         function openCharaStigmata(id) {
             const st = characterDetailsData[id] && characterDetailsData[id].stigmata;
             if (!st) return;
-            csOpen(`<div class="cs-modal"><div class="cs-head"><b>${csEsc(csPretty(id))} · Stigmata</b><button class="cs-x" onclick="csClose()">✕</button></div><div class="cs-stage" id="csStage"></div></div>`);
+            csOpen(`<div class="cs-modal"><div class="cs-head"><div class="cs-head-l"><b>${csEsc(csPretty(id))} · Stigmata</b>${csUltHas(characterDetailsData[id].ultimate) ? `<button class="cs-ult-btn" onclick="openCharaUltimate('${csEsc(id)}')">Ultimate skill</button>` : ''}</div><button class="cs-x" onclick="csClose()">✕</button></div><div class="cs-stage" id="csStage"></div></div>`);
             csDraw(st, 'main');
             const stage = document.getElementById('csStage');
             stage.addEventListener('click', ev => {
@@ -1938,6 +2035,7 @@
                 if (!d || !host) return;
                 const s = d.stigmata, tabs = [];
                 if (s && (s.base || (s.nodes || []).length || (s.extras || []).some(r => r.length))) tabs.push(['Stigmata', '#4aa8d8', () => openCharaStigmata(f.id)]);
+                if (!tabs.length && csUltHas(d.ultimate)) tabs.push(['Ultimate skill', '#ffb74d', () => openCharaUltimate(f.id)]);
                 if (String(d.plot || '').trim()) tabs.push(['Plot', '#ff8a65', () => openCharaPlot(f.id)]);
                 if (!tabs.length) return;
                 const left = Array.prototype.indexOf.call(f.parentElement.children, f) % 2 === 0;   // same odd/even rule the site uses for the artwork
