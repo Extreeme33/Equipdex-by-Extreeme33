@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>GGZ Tools by Extreeme33</title>
     <style>
+        html { overflow-y: scroll; scrollbar-gutter: stable; }   /* keep the scrollbar space reserved so the page doesn't shift between short and long tabs */
         body { font-family: Arial, sans-serif; background-color: #121212; color: #e0e0e0; margin: 0; padding: 0; }
         .navbar { background-color: #0c0e17; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #16192b; }
         .navbar-title { font-size: 20px; font-weight: bold; color: #ffffff; }
@@ -722,6 +723,37 @@
             padding-top: 0 !important;
             margin-top: 10px !important;
         }
+
+        /* ===== EQUIPDEX VIEW TOGGLE / ICON MODE / EVOLUTION TABS ===== */
+        .equipdex-tools { display: none; align-items: center; gap: 10px; }
+        .view-toggle { display: flex; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; overflow: hidden; }
+        .view-toggle button { background: rgba(255,255,255,0.07); color: #a4b0be; border: none; padding: 8px 12px; font-size: 13px; cursor: pointer; line-height: 1; }
+        .view-toggle button + button { border-left: 1px solid rgba(255,255,255,0.15); }
+        .view-toggle button:hover { color: #ffffff; }
+        .view-toggle button.active { background: #ffb74d; color: #121212; font-weight: bold; }
+        .eq-filter { position: relative; }
+        .eq-filter-btn { background: rgba(255,255,255,0.07); color: #a4b0be; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; padding: 8px 12px; font-size: 13px; cursor: pointer; line-height: 1; white-space: nowrap; }
+        .eq-filter-btn:hover, .eq-filter-btn.open { color: #fff; background: rgba(255,255,255,0.12); }
+        .eq-filter-btn.on { border-color: #ffb74d; color: #ffb74d; }
+        .eq-filter-btn .eq-count { background: #ffb74d; color: #121212; border-radius: 9px; padding: 1px 6px; font-size: 11px; font-weight: bold; margin-left: 4px; }
+        .eq-filter-panel { display: none; position: absolute; right: 0; top: calc(100% + 6px); width: 330px; max-height: 70vh; overflow-y: auto; background: #1a1a24; border: 1px solid #3a3a4c; border-radius: 8px; padding: 12px; z-index: 5000; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
+        .eq-filter-panel.show { display: block; }
+        .eq-fgroup + .eq-fgroup { margin-top: 12px; padding-top: 10px; border-top: 1px solid #2d2d3e; }
+        .eq-fgroup h4 { margin: 0 0 8px; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: #ffb74d; }
+        .eq-fopts { display: flex; flex-wrap: wrap; gap: 6px; }
+        .eq-fopt { display: inline-flex; align-items: center; gap: 6px; padding: 5px 8px; border: 1px solid #2d2d3e; border-radius: 6px; background: #14141c; color: #d0d0d8; font-size: 13px; cursor: pointer; user-select: none; }
+        .eq-fopt:hover { border-color: #5c6bc0; }
+        .eq-fopt.checked { border-color: #ffb74d; background: #2a2418; }
+        .eq-fopt input { margin: 0; accent-color: #ffb74d; cursor: pointer; }
+        .eq-fopt img { width: 22px; height: 22px; object-fit: contain; display: block; }
+        .eq-fempty { color: #777; font-size: 12px; }
+        .eq-ffoot { display: flex; justify-content: flex-end; margin-top: 12px; }
+        .eq-ffoot button { background: #2d2d3e; color: #fff; border: none; border-radius: 4px; padding: 6px 12px; cursor: pointer; font-size: 12px; }
+        .grid-container.icon-mode { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 10px; }
+        .grid-container.icon-mode .item-card { flex-direction: column; justify-content: center; padding: 6px; }
+        .grid-container.icon-mode .item-info { display: none; }
+        .grid-container.icon-mode .image-box { margin-right: 0; width: 100%; height: auto; aspect-ratio: 1 / 1; }
+        .ver-tabs.evo-tabs { flex-wrap: wrap; }
     </style>
 <script>window.Neutralino = window.Neutralino || { init(){}, events:{ on(){}, off(){}, dispatch(){} } };</script><style>button[onclick*='openEditor']{display:none !important;}</style></head>
 <body>
@@ -730,8 +762,18 @@
     <div class="navbar">
         <div class="navbar-title">GGZ Tools by Extreeme33</div>
         
-        <div class="search-box">
-            <input type="text" id="searchInput" placeholder="Search by name, ID, type, or skill..." oninput="handleSearch()">
+        <div class="equipdex-tools" id="equipdexTools">
+            <div class="view-toggle" title="Display mode">
+                <button id="viewBtnDetail" onclick="setEquipView('detail')" title="Show name and stars">&#9776; Detail</button>
+                <button id="viewBtnIcon" onclick="setEquipView('icon')" title="Show icons only">&#9638; Icons</button>
+            </div>
+            <div class="eq-filter" id="eqFilter">
+                <button type="button" class="eq-filter-btn" id="eqFilterBtn" onclick="toggleEquipFilter(event)">&#9660; Filter<span class="eq-count" id="eqFilterCount" style="display:none;">0</span></button>
+                <div class="eq-filter-panel" id="eqFilterPanel" onclick="event.stopPropagation()"></div>
+            </div>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search by name, ID, type, or skill..." oninput="handleSearch()">
+            </div>
         </div>
     </div>
 
@@ -926,6 +968,26 @@
         }
 
         const GAME_STAR_ICON = "element icon/star.webp";
+        const starFallback = it => /^EX/i.test(String((it && it.stars) || '')) ? "element icon/Ex_Star.webp" : GAME_STAR_ICON;
+
+        // Saved icons are huge base64 strings. Repeating one inside every card (once per star!) made the browser parse and decode
+        // megabytes of identical text. Each distinct picture is converted once into a short blob: link instead.
+        const _shortSrcCache = new Map();
+        function shortSrc(src) {
+            if (!src || typeof src !== 'string' || src.slice(0, 5) !== 'data:') return src;
+            let hit = _shortSrcCache.get(src);
+            if (hit) return hit;
+            try {
+                const comma = src.indexOf(',');
+                const head = src.slice(5, comma), mime = head.split(';')[0] || 'application/octet-stream';
+                if (head.indexOf('base64') === -1) return src;
+                const bin = atob(src.slice(comma + 1)), bytes = new Uint8Array(bin.length);
+                for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+                hit = URL.createObjectURL(new Blob([bytes], { type: mime }));
+            } catch (e) { hit = src; }
+            _shortSrcCache.set(src, hit);
+            return hit;
+        }
 
         let currentPage = 1;
         let itemsPerPage = 40;
@@ -947,6 +1009,8 @@
             document.querySelectorAll('.main-panel-content').forEach(p => p.classList.remove('active'));
             btnElement.classList.add('active');
             document.getElementById('panel-' + panelId).classList.add('active');
+            const tools = document.getElementById('equipdexTools');
+            if (tools) tools.style.display = panelId === 'equipdex' ? 'flex' : 'none';
             if (panelId === 'equipdex') setupDisplay();
             if (panelId === 'metalist') renderVersionList();
         }
@@ -973,21 +1037,141 @@
             return text;
         }
 
+        // ===== Evolution chains =====
+        // Items linked through "refinedFrom" form one chain (e.g. Fenrir's Tusk 5★ -> 6★ -> Fenrir: Godslayer 7★).
+        // The grid shows only the highest-star item of each chain; the popup gets a tab per step.
+        // Items that already use Alpha / Beta / Gamma are left exactly as they were.
+        function isVersionedItem(item) {
+            const g = Array.isArray(item.versionGroup) ? item.versionGroup.filter(m => database[m.id]) : [];
+            if (g.length > 1) return true;
+            return !!(item.versions && ['alpha', 'beta', 'gamma'].filter(k => item.versions[k]).length > 1);
+        }
+        function starCountOf(item) { return (item.stars || '').replace(/[^⭐]/g, '').length || 0; }
+
+        let evoChainOf = {};
+        let evoBuiltFor = null;
+        function ensureEvolutionChains() {
+            if (evoBuiltFor === database) return;
+            evoBuiltFor = database;
+            evoChainOf = {};
+            const parent = {};
+            const find = x => { while (parent[x] !== x) { parent[x] = parent[parent[x]]; x = parent[x]; } return x; };
+            const ids = Object.keys(database).filter(id => !isVersionedItem(database[id]));
+            ids.forEach(id => { parent[id] = id; });
+            ids.forEach(id => {
+                const r = database[id].refinedFrom;
+                (Array.isArray(r) ? r : (r ? [r] : [])).forEach(o => {
+                    o = String(o);
+                    if (parent[o] === undefined) return;
+                    const a = find(id), b = find(o);
+                    if (a !== b) parent[a] = b;
+                });
+            });
+            const groups = {};
+            ids.forEach(id => { const root = find(id); (groups[root] = groups[root] || []).push(id); });
+            Object.values(groups).forEach(list => {
+                const members = list.map(id => database[id])
+                    .sort((a, b) => starCountOf(a) - starCountOf(b) || (parseInt(a.id, 10) || 0) - (parseInt(b.id, 10) || 0));
+                const chain = { members: members, top: members[members.length - 1] };
+                members.forEach(m => { evoChainOf[m.id] = chain; });
+            });
+        }
+
+        // ===== Equipdex filter dropdown: Type (text), Element and Item category (icons). Any ticked box in a group matches; groups combine (AND) =====
+        const equipFilter = { type: new Set(), element: new Set(), category: new Set() };
+        const eqElementKey = it => String(it.itemElement || 'none').toLowerCase().trim();
+        const eqCategoryKey = it => String(it.subcategory || '').trim().toLowerCase() === 'none' ? 'none' : (it.subcategory || 'Role');
+        function matchesEquipFilter(it) {
+            const f = equipFilter;
+            if (f.type.size && !f.type.has(String(it.type || '').trim().toLowerCase())) return false;
+            if (f.element.size && !f.element.has(eqElementKey(it))) return false;
+            if (f.category.size && !f.category.has(eqCategoryKey(it))) return false;
+            return true;
+        }
+        function equipFilterOptions() {
+            const types = new Map(), els = new Map(), cats = new Map();
+            Object.values(database).forEach(it => {
+                const t = String(it.type || '').trim();
+                if (t && !types.has(t.toLowerCase())) types.set(t.toLowerCase(), t);
+                const e = eqElementKey(it);
+                if (e !== 'none' && !els.get(e)) els.set(e, elementSrc(e, it));
+                const c = eqCategoryKey(it);
+                if (!cats.get(c)) cats.set(c, it.categoryIcon || '');
+            });
+            return { types, els, cats };
+        }
+        function renderEquipFilter() {
+            const panel = document.getElementById('eqFilterPanel');
+            if (!panel) return;
+            const o = equipFilterOptions();
+            panel.innerHTML = '';
+            const addGroup = (title, key, entries) => {
+                const g = document.createElement('div'); g.className = 'eq-fgroup';
+                const h = document.createElement('h4'); h.textContent = title; g.appendChild(h);
+                const box = document.createElement('div'); box.className = 'eq-fopts'; g.appendChild(box);
+                if (!entries.length) { const e = document.createElement('div'); e.className = 'eq-fempty'; e.textContent = 'Nothing to filter yet.'; box.appendChild(e); }
+                entries.forEach(([val, label, icon]) => {
+                    const lab = document.createElement('label'); lab.className = 'eq-fopt' + (equipFilter[key].has(val) ? ' checked' : ''); lab.title = label;
+                    const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = equipFilter[key].has(val);
+                    cb.addEventListener('change', () => { cb.checked ? equipFilter[key].add(val) : equipFilter[key].delete(val); lab.classList.toggle('checked', cb.checked); applyEquipFilter(); });
+                    lab.appendChild(cb);
+                    if (icon) { const im = document.createElement('img'); im.src = icon; im.alt = label; lab.appendChild(im); }
+                    else lab.appendChild(document.createTextNode(label));
+                    box.appendChild(lab);
+                });
+                panel.appendChild(g);
+            };
+            addGroup('Type', 'type', [...o.types].sort((a, b) => a[1].localeCompare(b[1])).map(([k, v]) => [k, v, '']));
+            addGroup('Element', 'element', [...o.els].sort((a, b) => a[0].localeCompare(b[0])).map(([k, src]) => [k, k.charAt(0).toUpperCase() + k.slice(1), src]));
+            addGroup('Item category', 'category', [...[...o.cats].filter(([k]) => k !== 'none').sort((a, b) => a[0].localeCompare(b[0])).map(([k, src]) => [k, k, src]), ['none', 'None', '']]);
+            const foot = document.createElement('div'); foot.className = 'eq-ffoot';
+            const clr = document.createElement('button'); clr.type = 'button'; clr.textContent = 'Clear all';
+            clr.addEventListener('click', () => { Object.values(equipFilter).forEach(s => s.clear()); renderEquipFilter(); applyEquipFilter(); });
+            foot.appendChild(clr); panel.appendChild(foot);
+        }
+        function applyEquipFilter() {
+            const n = equipFilter.type.size + equipFilter.element.size + equipFilter.category.size;
+            const c = document.getElementById('eqFilterCount'), b = document.getElementById('eqFilterBtn');
+            if (c) { c.textContent = n; c.style.display = n ? '' : 'none'; }
+            if (b) b.classList.toggle('on', n > 0);
+            currentPage = 1; updateFilteredItems(); setupDisplay();
+        }
+        function toggleEquipFilter(ev) {
+            if (ev) ev.stopPropagation();
+            const panel = document.getElementById('eqFilterPanel'), btn = document.getElementById('eqFilterBtn');
+            const open = !panel.classList.contains('show');
+            if (open) renderEquipFilter();
+            panel.classList.toggle('show', open); btn.classList.toggle('open', open);
+        }
+        document.addEventListener('click', ev => {
+            const panel = document.getElementById('eqFilterPanel');
+            if (panel && panel.classList.contains('show') && !ev.target.closest('#eqFilter')) { panel.classList.remove('show'); document.getElementById('eqFilterBtn').classList.remove('open'); }
+        });
+
         function updateFilteredItems() {
+            ensureEvolutionChains();
             const query = (document.getElementById('searchInput').value || '').toLowerCase().trim();
             const keys = Object.keys(database).sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
             filteredItems = [];
+            const seenChains = new Set();
+
+            const matchesQuery = it => {
+                if (!query) return true;
+                return (it.name || '').toLowerCase().includes(query) || (it.type || '').toLowerCase().includes(query) || (it.id || '').toLowerCase().includes(query)
+                    || query.split(/\s+/).every(w => skillSearchText(it).includes(w));   // skill text: every typed word has to appear
+            };
 
             keys.forEach(id => {
                 const item = database[id];
-                const name = (item.name || '').toLowerCase();
-                const type = (item.type || '').toLowerCase();
-                const itemId = (item.id || '').toLowerCase();
+                const chain = evoChainOf[id];
+                if (chain && seenChains.has(chain)) return;
+                const shown = chain ? chain.top : item;   // only the highest evolution gets a card
+                const type = (shown.type || '').toLowerCase();
 
-                const matchesSearch = !query || name.includes(query) || type.includes(query) || itemId.includes(query)
-                    || query.split(/\s+/).every(w => skillSearchText(item).includes(w));   // skill text: every typed word has to appear
+                // a search that matches any step of the chain still finds the chain (shown as its highest evolution)
+                const matchesSearch = chain ? chain.members.some(matchesQuery) : matchesQuery(item);
                 let matchesCategory = false;
-                
+
                 if (currentCategory === 'ALL') matchesCategory = true;
                 else if (currentCategory === 'WEAPONS') matchesCategory = !type.includes('cloth') && !type.includes('badge') && !type.includes('pet');
                 else if (currentCategory === 'CLOTHES') matchesCategory = type.includes('cloth');
@@ -998,9 +1182,28 @@
                 const g = Array.isArray(item.versionGroup) ? item.versionGroup.filter(m => database[m.id]) : [];
                 const hiddenVersion = g.length > 1 && g[0].id !== item.id && !query;
 
-                if (matchesSearch && matchesCategory && !hiddenVersion) filteredItems.push(item);
+                if (matchesSearch && matchesCategory && matchesEquipFilter(shown) && !hiddenVersion) {
+                    filteredItems.push(shown);
+                    if (chain) seenChains.add(chain);
+                }
             });
         }
+
+        // ===== Equipdex display mode: detail (name + stars) or icons only =====
+        let equipViewMode = 'detail';
+        try { if (localStorage.getItem('equipdex_view') === 'icon') equipViewMode = 'icon'; } catch (e) {}
+        function applyEquipView() {
+            grid.classList.toggle('icon-mode', equipViewMode === 'icon');
+            const d = document.getElementById('viewBtnDetail'), i = document.getElementById('viewBtnIcon');
+            if (d) d.classList.toggle('active', equipViewMode === 'detail');
+            if (i) i.classList.toggle('active', equipViewMode === 'icon');
+        }
+        function setEquipView(mode) {
+            equipViewMode = mode === 'icon' ? 'icon' : 'detail';
+            try { localStorage.setItem('equipdex_view', equipViewMode); } catch (e) {}
+            applyEquipView();
+        }
+        applyEquipView();
 
         function switchCategory(category, buttonElement) {
             currentCategory = category;
@@ -1021,22 +1224,24 @@
             const startIndex = (currentPage - 1) * itemsPerPage;
             const endIndex = Math.min(startIndex + itemsPerPage, filteredItems.length);
 
+            const cardsHtml = [];
             for (let i = startIndex; i < endIndex; i++) {
                 const item = filteredItems[i];
                 const starCount = (item.stars || '').replace(/[^⭐]/g, '').length || 0;
-                const activeStarSrc = item.starIcon || GAME_STAR_ICON;
+                const activeStarSrc = shortSrc(item.starIcon) || starFallback(item);
                 const starImagesHTML = starCount > 0 ? Array(starCount).fill(`<img src="${activeStarSrc}" style="width:12px; height:12px; object-fit:contain; margin-right:1px;">`).join('') : '';
 
-                grid.innerHTML += `
-                    <div class="item-card" onclick="openPopup('${item.id}')">
+                cardsHtml.push(`
+                    <div class="item-card" title="${String(cardName(item)).replace(/"/g, '&quot;')}" onclick="openPopup('${item.id}')">
                         <div class="image-box"><img src="${item.img}" alt="${cardName(item)}"></div>
                         <div class="item-info">
                             <div class="item-name">${cardName(item)}</div>
                             <div class="stars" style="display:flex; align-items:center;">${starImagesHTML}</div>
                         </div>
                     </div>
-                `;
+                `);
             }
+            grid.innerHTML = cardsHtml.join('');   // one write instead of re-parsing the whole grid for every card
         }
 
         function renderPaginationControls() {
@@ -1414,6 +1619,11 @@
             const item = activeVer ? Object.assign({}, baseItem0, baseItem0.versions[activeVer]) : baseItem0;
             const verNames = { alpha: 'Alpha', beta: 'Beta', gamma: 'Gamma' };
             const verTabsHtml = groupTabs.length > 1 ? '<div class="ver-tabs">' + groupTabs.map(m => '<button class="ver-tab' + (m.id === id ? ' active' : '') + '" onclick="event.stopPropagation(); openPopup(\'' + m.id + '\', \'keep\')">' + verNames[m.k] + '</button>').join('') + '</div>' : activeVer ? '<div class="ver-tabs">' + verKeys.map(k => '<button class="ver-tab' + (k === activeVer ? ' active' : '') + '" onclick="event.stopPropagation(); openPopup(\'' + id + '\', \'' + k + '\')">' + verNames[k] + '</button>').join('') + '</div>' : '';
+            ensureEvolutionChains();
+            const evoChain = (!activeVer && groupTabs.length < 2) ? evoChainOf[id] : null;
+            const evoTabsHtml = (evoChain && evoChain.members.length > 1) ? '<div class="ver-tabs evo-tabs">' + evoChain.members.map(m =>
+                '<button class="ver-tab' + (String(m.id) === String(id) ? ' active' : '') + '" onclick="event.stopPropagation(); openPopup(\'' + m.id + '\', \'keep\')">' +
+                escapeAnnText(m.name || ('No.' + m.id)) + ' <span style="opacity:.75;">' + starCountOf(m) + '★</span></button>').join('') + '</div>' : '';
             const keepScroll = verKey && document.querySelector('.modal-content') ? document.querySelector('.modal-content').scrollTop : 0;
             const box = document.getElementById('modalDataBox'); if (!box) return;
             const mainElement = item.itemElement || 'none';
@@ -1434,7 +1644,7 @@
             const iconSrc = item.categoryIcon || subcategoryIcons["default"];
 
             const starCountPopup = (item.stars || '').replace(/[^⭐]/g, '').length || 0;
-            const activePopupStarSrc = item.starIcon || GAME_STAR_ICON;
+            const activePopupStarSrc = shortSrc(item.starIcon) || starFallback(item);
             const starImagesPopup = starCountPopup > 0 ? Array(starCountPopup).fill('<img src="' + activePopupStarSrc + '" style="width:16px; height:16px; object-fit:contain; margin-right:2px; vertical-align:middle;">').join('') : '';
             const displayCrit = (item.critRate || '0').toString().includes('%') ? item.critRate : (item.critRate || '0') + '%';
 
@@ -1500,7 +1710,7 @@
                 subCategoryHtml = '<div class="subcategory-icon-wrapper" data-tooltip="' + subCat + '"><img class="subcategory-icon-img" src="' + iconSrc + '"></div>';
             }
 
-            let htmlContent = verTabsHtml + '<div class="popup-header"><div class="popup-img"><img src="' + item.img + '"></div><div class="popup-title-area"><div class="popup-title-container"><h2 style="color:#fff;">No.' + item.id + ' ' + item.name + '</h2>' + subCategoryHtml + mainElementHtml + '</div><div class="popup-stars" style="display:flex; align-items:center; margin-top:2px;">' + starImagesPopup + '</div></div></div><div class="disassemble-text" style="color:#aaaaaa; font-weight:bold;">' + dismantleText + '</div><div class="ineffective-text" style="color:#ffa726; font-weight:bold; margin-bottom:15px;">' + stackingText + '</div><div class="stats-table">' + statsRowsHtml + '    <div class="stat-type" style="grid-column: span 2;"><span class="stat-label">Type:</span> <span class="stat-value" style="color:#ffb74d;">' + item.type + '</span></div>' + finalLegendSectionHtml + '</div>';
+            let htmlContent = verTabsHtml + evoTabsHtml + '<div class="popup-header"><div class="popup-img"><img src="' + item.img + '"></div><div class="popup-title-area"><div class="popup-title-container"><h2 style="color:#fff;">No.' + item.id + ' ' + item.name + '</h2>' + subCategoryHtml + mainElementHtml + '</div><div class="popup-stars" style="display:flex; align-items:center; margin-top:2px;">' + starImagesPopup + '</div></div></div><div class="disassemble-text" style="color:#aaaaaa; font-weight:bold;">' + dismantleText + '</div><div class="ineffective-text" style="color:#ffa726; font-weight:bold; margin-bottom:15px;">' + stackingText + '</div><div class="stats-table">' + statsRowsHtml + '    <div class="stat-type" style="grid-column: span 2;"><span class="stat-label">Type:</span> <span class="stat-value" style="color:#ffb74d;">' + item.type + '</span></div>' + finalLegendSectionHtml + '</div>';
 
             // Build Skill 1 & 2 content
             let skillBaseHtml = '';
@@ -1609,7 +1819,10 @@
                         const refSubCat = linkedItemData.subcategory || "Role";
                         // Pull the icon from the linked item itself — not the current item
                         const refIconSrc = linkedItemData.categoryIcon || subcategoryIcons["default"];
-                        const refStarSrc = linkedItemData.starIcon || GAME_STAR_ICON;
+                        const refStarSrc = shortSrc(linkedItemData.starIcon) || starFallback(linkedItemData);
+                        // no icon at all when the linked item's category is "none"
+                        const refCatHidden = String(refSubCat).trim().toLowerCase() === 'none' || String(refIconSrc).toLowerCase().includes('none');
+                        const refSubCatHtml = refCatHidden ? '' : `<div class="subcategory-icon-wrapper" data-tooltip="${refSubCat}" style="width: 16px; height: 16px;"><img class="subcategory-icon-img" src="${refIconSrc}"></div>`;
 
                         const starCountPopup = (linkedItemData.stars || '').replace(/[^⭐]/g, '').length || 1;
                         const evolutionStarImages = starCountPopup > 0 ? Array(starCountPopup).fill('<img src="' + refStarSrc + '" style="width:11px; height:11px; object-fit:contain; margin-right:1px; vertical-align:middle;">').join('') : '';
@@ -1627,7 +1840,7 @@
                                     <div style="display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 4px;">
                                         <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                                             <div style="color: #ffffff; font-size: 13px; font-weight: bold; line-height: 1.2;">No.${refId} ${linkedItemData.name}</div>
-                                            <div class="subcategory-icon-wrapper" data-tooltip="${refSubCat}" style="width: 16px; height: 16px;"><img class="subcategory-icon-img" src="${refIconSrc}"></div>
+                                            ${refSubCatHtml}
                                             ${refElementHtml}
                                         </div>
                                         <div style="display: flex; align-items: center; line-height: 1;">${evolutionStarImages}</div>
@@ -1848,7 +2061,7 @@
             const useArt = !!f.art;
             const c = (crop && (crop.src === 'art') === useArt) ? crop : null;
             const z = c ? c.z : (useArt ? 2.2 : 5.39), ox = c ? c.ox : (useArt ? -0.6 : (f.side === 'left' ? -0.57 : -3.83)), oy = c ? c.oy : 0;
-            return "background-image: url('" + (useArt ? f.art : f.url) + "'); background-repeat: no-repeat; background-size: calc(" + (+z) + " * 100cqw) auto; background-position: calc(" + (+ox) + " * 100cqw) calc(" + (+oy) + " * 100cqw);";
+            return "--mf-u: '" + (useArt ? f.art : f.url) + "'; --mf-z: " + (+z) + "; --mf-x: " + (+ox) + "; --mf-y: " + (+oy) + "; background-image: url('" + (useArt ? f.art : f.url) + "'); background-repeat: no-repeat; background-size: calc(" + (+z) + " * 100cqw) auto; background-position: calc(" + (+ox) + " * 100cqw) calc(" + (+oy) + " * 100cqw);";
         }
         function openMetaStigmata(charId, nodeId) {
             const st = characterDetailsData[charId] && characterDetailsData[charId].stigmata;
@@ -2217,7 +2430,7 @@
             const iconSrc = item.categoryIcon || (typeof subcategoryIcons !== 'undefined' ? subcategoryIcons['default'] : '');
             const elIconSrc = elementSrc(mainElement, item);
             const starCount = (item.stars || '').replace(/[^⭐]/g, '').length || 0;
-            const starSrc = item.starIcon || (typeof GAME_STAR_ICON !== 'undefined' ? GAME_STAR_ICON : '');
+            const starSrc = item.starIcon || starFallback(item);
 
             let icons = '';
             if (subCat && String(subCat).trim().toLowerCase() !== 'none' && iconSrc && !String(iconSrc).toLowerCase().includes('none')) {
@@ -2664,6 +2877,51 @@
             <a id="annLink" href="#" target="_blank" style="display: block; text-align: center; background: #0288d1; color: #fff; text-decoration: none; padding: 12px; border-radius: 4px; font-weight: bold;">View Original Announcement ↗</a>
         </div>
     </div>
+<script>
+/* Smooth face crops: a browser scales a huge picture down to a tiny tile in one rough step (jagged, unnatural).
+   This redraws every face tile (elements marked with --mf-* by metaFaceStyle) on a canvas, halving the picture step by step, which is how it looks when scaled down nicely. */
+(function () {
+    const imgs = new Map();
+    const load = u => { if (!imgs.has(u)) imgs.set(u, new Promise(res => { const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = u; })); return imgs.get(u); };
+    const mk = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
+    function paint(el) {
+        const p = el._mf; if (!p || !el.isConnected) return;
+        const W = el.clientWidth, H = el.clientHeight;
+        if (!W || !H) return;
+        const dpr = window.devicePixelRatio || 1, tw = Math.max(1, Math.round(W * dpr)), th = Math.max(1, Math.round(H * dpr)), nw = p.img.naturalWidth;
+        let src = p.img, cw = nw / p.z, ch = cw * H / W, cx = -p.ox / p.z * nw, cy = -p.oy / p.z * nw;   // the part of the picture the tile shows
+        while (cw / 2 > tw) {                                                                           // halve until it is at most 2x the final size
+            const w2 = Math.max(tw, Math.round(cw / 2)), h2 = Math.max(1, Math.round(w2 * ch / cw)), c2 = mk(w2, h2), g2 = c2.getContext('2d');
+            g2.imageSmoothingQuality = 'high';
+            g2.drawImage(src, cx, cy, cw, ch, 0, 0, w2, h2);
+            src = c2; cx = 0; cy = 0; cw = w2; ch = h2;
+        }
+        const cv = p.cv, g = cv.getContext('2d');
+        cv.width = tw; cv.height = th;
+        g.imageSmoothingQuality = 'high';
+        g.drawImage(src, cx, cy, cw, ch, 0, 0, tw, th);
+        if (!cv.parentNode) { el.style.backgroundImage = 'none'; el.appendChild(cv); }
+    }
+    function up(el) {
+        el.setAttribute('data-mf', '1');
+        const s = el.style, u = s.getPropertyValue('--mf-u').trim().replace(/^['"]|['"]$/g, '');
+        const z = parseFloat(s.getPropertyValue('--mf-z')), ox = parseFloat(s.getPropertyValue('--mf-x')), oy = parseFloat(s.getPropertyValue('--mf-y'));
+        if (!u || !(z > 0) || isNaN(ox) || isNaN(oy)) return;
+        load(u).then(img => {
+            if (!img || !el.isConnected) return;
+            const cv = document.createElement('canvas');
+            cv.style.cssText = 'display: block; width: 100%; height: 100%;';
+            el._mf = { img: img, z: z, ox: ox, oy: oy, cv: cv };
+            paint(el);
+            if (window.ResizeObserver) new ResizeObserver(() => paint(el)).observe(el);
+        });
+    }
+    const SEL = '[style*="--mf-u"]:not([data-mf])';
+    const scan = n => { if (n.nodeType !== 1) return; if (n.matches(SEL)) up(n); n.querySelectorAll(SEL).forEach(up); };
+    new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(scan))).observe(document.body, { childList: true, subtree: true });
+    scan(document.body);
+})();
+</script>
 <script>
         async function loadNeutralinoDatabase() {
             // The announcement banners are already baked into the page, so start their countdowns right away
