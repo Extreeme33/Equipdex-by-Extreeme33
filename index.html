@@ -3057,16 +3057,28 @@
                             return val;
                         };
 
-                        // Loop through all database items and replace @keys with actual base64
-                        for (const id in database) {
-                            const item = database[id];
-                            for (const key in item) {
-                                item[key] = resolveImg(item[key]);
+                        // Put the real picture back for every @key, at any depth (inside starVersions / versions too), and also where a
+                        // key stands alone inside quotes or brackets in a longer text (a url("@3") in the characters CSS, a src="@3" in HTML)
+                        const restoreStr = (v) => {
+                            if (v.length < 8 && v.charAt(0) === '@' && data.images[v]) return data.images[v];
+                            if (v.length > 8 && v.indexOf('@') !== -1) {
+                                return v.replace(/(["'(])@([0-9]+)(["')])/g, (m, a, n, b) => data.images['@' + n] ? a + data.images['@' + n] + b : m);
                             }
-                            if (item.versions && typeof item.versions === 'object') {
-                                for (const vk in item.versions) for (const key in item.versions[vk]) item.versions[vk][key] = resolveImg(item.versions[vk][key]);
+                            return v;
+                        };
+                        const restoreDeep = (o) => {
+                            if (!o || typeof o !== 'object') return;
+                            for (const k in o) {
+                                const v = o[k];
+                                if (typeof v === 'string') o[k] = restoreStr(v);
+                                else if (v && typeof v === 'object') restoreDeep(v);
                             }
-                        }
+                        };
+                        for (const id in database) restoreDeep(database[id]);
+                        restoreDeep(customBannersData);
+                        restoreDeep(characterDetailsData);
+                        restoreDeep(elementIconMap);
+                        restoreDeep(charactersData);
 
                         // Loop through meta registry and resolve images (avatars, etc)
                         metaCategories.forEach(cat => {
