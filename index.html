@@ -177,6 +177,10 @@
         .meta-char-name { width: 100%; text-align: center; font-size: 10px; font-weight: bold; color: #ffb74d; letter-spacing: 0.5px; line-height: 1.2; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         .meta-stig-icon { width: 20px; height: 20px; box-sizing: border-box; border-radius: 50%; border: 2px solid #4aa8d8; background: #12304f; overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #4aa8d8; font-size: 8px; transition: transform .12s, border-color .12s; }
         .meta-stig-icon:hover { transform: scale(1.18); border-color: #ffc400; }
+        .meta-stig-tip { position: fixed; z-index: 3000; display: none; min-width: 200px; max-width: 320px; background: rgba(14,18,30,.97); border: 1px solid rgba(120,160,220,.4); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.6); overflow: hidden; pointer-events: none; }
+        .meta-stig-tip .mt-h { background: #3a9ad6; color: #fff; font-weight: bold; font-size: 14px; padding: 7px 12px; }
+        .meta-stig-tip .mt-b { padding: 9px 12px; font-size: 13px; line-height: 1.5; color: #dce6f7; white-space: pre-wrap; max-height: 280px; overflow: hidden; }
+        .meta-stig-tip .csm { background: rgba(74,168,216,.28); color: #8fd3ff; border-radius: 4px; padding: 0 4px; font-weight: 600; }
         .meta-stig-icon img { width: 100%; height: 100%; object-fit: contain; }
         .meta-equipment-box { display: flex; flex-direction: column; gap: 15px; }
         .meta-equip-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
@@ -2176,6 +2180,28 @@
             openCharaStigmata(charId);
             csGoTo(st, nodeId);   // same as clicking that stigmata in the Stigmata window: its details open on the side
         }
+        // Hovering a stigmata icon in the meta list shows its details (clicking still opens the Stigmata window as before)
+        function hideMetaStigTip() { const t = document.getElementById('metaStigTip'); if (t) t.style.display = 'none'; }
+        function showMetaStigTip(icon) {
+            const st = characterDetailsData[icon.dataset.char] && characterDetailsData[icon.dataset.char].stigmata;
+            const n = st && csFind(st, icon.dataset.node);
+            if (!n) return;
+            let tip = document.getElementById('metaStigTip');
+            if (!tip) { tip = document.createElement('div'); tip.id = 'metaStigTip'; tip.className = 'meta-stig-tip'; document.body.appendChild(tip); }
+            const body = String(n.desc || '').trim() ? '<div class="mt-b">' + csListify(csDescHtml(n.desc, st)) + '</div>' : '';
+            tip.innerHTML = '<div class="mt-h">\u25CF ' + csEsc(n.title || 'Untitled') + '</div>' + body;
+            tip.style.visibility = 'hidden'; tip.style.display = 'block';
+            const r = icon.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight;
+            let left = r.right + 10;
+            if (left + w > window.innerWidth - 8) left = Math.max(8, r.left - w - 10);
+            const top = Math.min(Math.max(8, r.top + r.height / 2 - h / 2), Math.max(8, window.innerHeight - h - 8));
+            tip.style.left = left + 'px'; tip.style.top = top + 'px'; tip.style.visibility = 'visible';
+        }
+        document.addEventListener('mouseover', e => { const ic = e.target.closest && e.target.closest('.meta-stig-icon'); if (ic && ic.dataset.char) showMetaStigTip(ic); });
+        document.addEventListener('mouseout', e => { const ic = e.target.closest && e.target.closest('.meta-stig-icon'); if (ic && !(e.relatedTarget && ic.contains(e.relatedTarget))) hideMetaStigTip(); });
+        document.addEventListener('click', hideMetaStigTip, true);
+        window.addEventListener('scroll', hideMetaStigTip, true);
+
         function metaCharacterHtml(card) {
             let avatar;
             if (card.character) {
@@ -2188,7 +2214,7 @@
             }
             const st = card.character && characterDetailsData[card.character] && characterDetailsData[card.character].stigmata;
             const picked = st ? (card.stigmata || []).slice(0, 4).map(id => ({ id: id, n: csFind(st, id) })).filter(x => x.n) : [];
-            const col = picked.length ? '<div class="meta-stig-col">' + picked.map(x => '<div class="meta-stig-icon' + (x.n.shape === 'square' ? ' sq' : '') + '" title="' + csEsc(x.n.title || 'Stigmata') + '" onclick="openMetaStigmata(\'' + csEsc(card.character) + '\', \'' + csEsc(x.id) + '\')">' + (csImg(x.n.img) ? '<img src="' + csImg(x.n.img) + '">' : '●') + '</div>').join('') + '</div>' : '';
+            const col = picked.length ? '<div class="meta-stig-col">' + picked.map(x => '<div class="meta-stig-icon' + (x.n.shape === 'square' ? ' sq' : '') + '" data-char="' + csEsc(card.character) + '" data-node="' + csEsc(x.id) + '" onclick="openMetaStigmata(\'' + csEsc(card.character) + '\', \'' + csEsc(x.id) + '\')">' + (csImg(x.n.img) ? '<img src="' + csImg(x.n.img) + '">' : '●') + '</div>').join('') + '</div>' : '';
             const nm = card.character ? csPretty(card.character) : 'Character';
             return '<div class="meta-char-row"><div class="meta-avatar-wrap">' + avatar + '<span class="meta-char-name">' + csEsc(nm) + '</span></div>' + col + '</div>';
         }
